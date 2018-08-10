@@ -1,0 +1,29 @@
+{
+  "name": "algorithms",
+  "version": "1.0.0",
+  "description": "algorithms js implements",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "jest",
+    "start:dev": "webpack-dev-server"
+  },
+  "author": "liu xiao",
+  "license": "ISC",
+  "dependencies": {
+    "babel-runtime": "^6.26.0",
+    "webpack": "^4.14.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^23.2.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.0.1",
+    "jest": "^23.3.0",
+    "node-fetch": "^2.1.2",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4"
+  }
+}
