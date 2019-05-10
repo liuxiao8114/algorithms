@@ -1,12 +1,14 @@
-import { NO_CHECK, IN_COMPARE, IN_EXCHAGE,
-         INIT_POSITION, BORDER, HEIGHT, PER_HEIGHT, STEP,
-         NO_CONTEXT_ERROR } from '../constants'
+import {
+  NO_CHECK, IN_COMPARE, IN_EXCHAGE, INIT_POSITION, NO_CONTEXT_ERROR,
+  SM_STYLES as DEFAULT_STYLE
+} from '../constants'
 
 import sortRaw from './sortRaw'
 
 const { less, exch } = sortRaw()
 
-export default function animateSortRaw(ctx, w, h) {
+export default function animateSortRaw(ctx, w, h, style = DEFAULT_STYLE) {
+  const { BORDER, HEIGHT, PER_HEIGHT, STEP } = style
   if(!ctx)
     throw new Error(NO_CONTEXT_ERROR)
 

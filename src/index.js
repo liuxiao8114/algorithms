@@ -1,4 +1,4 @@
-import { NO_CHECK, INIT_POSITION, BORDER, HEIGHT, PER_HEIGHT, STEP } from './constants'
+import { NO_CHECK, INIT_POSITION, SM_STYLES, LG_STYLES } from './constants'
 import { insertion, selection } from './sort/primarySort'
 import shell from './sort/shellSort'
 import mergeSort from './sort/mergeSort'
@@ -16,6 +16,8 @@ function range(from, to) {
 }
 const a_100 = []
 
+// auto drawing
+const { HEIGHT, BORDER, PER_HEIGHT, STEP } = SM_STYLES
 for(let i = 0; i < 100; i++)
   a_100.push(range(1, 500))
 
@@ -27,6 +29,23 @@ for(let i = 0; i < a_100.length; i++) {
   position += STEP
 }
 
-const gen = shell.drawSorting(a_100, ctx, width, height)
+const gen = insertion.drawSorting(a_100, ctx, width, height, SM_STYLES)
+setInterval(() => gen.next(), 100)
 
-setInterval(() => gen.next(), 600)
+/*
+// click drawing
+const { HEIGHT, BORDER, PER_HEIGHT, STEP } = LG_STYLES
+for(let i = 0; i < 20; i++)
+  a_100.push(range(1, 50))
+
+ctx.fillStyle = NO_CHECK
+let position = INIT_POSITION
+
+for(let i = 0; i < a_100.length; i++) {
+  ctx.fillRect(position, HEIGHT, BORDER, -PER_HEIGHT * a_100[i])
+  position += STEP
+}
+
+const gen = insertion.drawSorting(a_100, ctx, width, height, LG_STYLES)
+document.addEventListener('click', () => gen.next())
+*/

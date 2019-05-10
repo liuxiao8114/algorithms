@@ -1,13 +1,7 @@
 import sortRaw from '../../src/sort/sortRaw'
-import { insertion, selection } from '../../src/sort/primarySort'
-import quick from '../../src/sort/quickSort'
-import mergeSort from '../../src/sort/mergeSort'
-import shellSort from '../../src/sort/shellSort'
 
 describe('sort raw tests', () => {
   let a, b, raw
-  const N = 500,
-        T = 100
 
   beforeEach(() => {
     raw = sortRaw()
@@ -29,7 +23,7 @@ describe('sort raw tests', () => {
   })
 
   it('compare insertion and selection', () => {
-//    console.log(insertion.sortCompare(insertion)(N, T, insertion.sort, insertion.sortNoEdgeChk))
+    // console.log(quick.sortCompare(quick)(500, 100, quick.sort, quick.sortX))
   })
 
 })

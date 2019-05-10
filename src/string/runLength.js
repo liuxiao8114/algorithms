@@ -1,5 +1,5 @@
-import BinaryStdIn from './BinaryStdIn'
-import BinaryStdOut from './BinaryStdOut'
+import BinaryStdIn from './utils/BinaryStdIn'
+import BinaryStdOut from './utils/BinaryStdOut'
 
 const runLength = {
   R: 256,

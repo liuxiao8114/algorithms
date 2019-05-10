@@ -37,9 +37,9 @@ insertion.sortNoEdgeChk = function(a) {
   }
 }
 
-insertion.drawSorting = function*(a, ctx, w, h) {
+insertion.drawSorting = function*(a, ctx, w, h, style) {
   checkParams(a)
-  const { less, exch } = animateSortRaw(ctx, w, h)
+  const { less, exch } = animateSortRaw(ctx, w, h, style)
   for(let i = 1; i < a.length; i++) {
     for(let j = i; j > 0 && (yield* less(a, j, j - 1)); j--)
       yield* exch(a, j - 1, j)
@@ -62,9 +62,9 @@ insertion.sortRecursive = function(a) {
   iter(a, 1, 1)
 }
 
-insertion.drawRecursiveSorting = function(a, ctx, w, h) {
+insertion.drawRecursiveSorting = function(a, ctx, w, h, style) {
   checkParams(a)
-  const animateSort = animateSortRaw(ctx, w, h)
+  const animateSort = animateSortRaw(ctx, w, h, style)
   function* iter(a, i, j) {
     if(i === a.length) return
     if(j === 0 || !(yield* animateSort.less(a, j, j - 1))) {
@@ -89,9 +89,8 @@ selection.sort = function(a) {
   checkParams(a)
   for(let i = 0; i < a.length; i++) {
     let min = i
-    for(let j = i; j < a.length; j++) {
+    for(let j = i; j < a.length; j++)
       if(selection.less(a, j, min)) min = j
-    }
     selection.exch(a, i, min)
   }
 }

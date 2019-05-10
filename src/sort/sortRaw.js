@@ -1,6 +1,7 @@
 export default function sortRaw() {
   let lessCounts = 0
   let exchCounts = 0
+
   function less(a, i, j) {
     if(!Array.isArray(a))
       throw new Error('less need array as first param')
@@ -28,21 +29,20 @@ export default function sortRaw() {
         m(a)
         total += Date.now() - before
       }
-
       return total
     }
 
     return (N, T, m1 = this.sort, m2 = that.sort) => {
       let thisTime = timesCaculator(m1, N, T),
           thatTime = timesCaculator(m2, N, T)
-      return this.type + ' comparesTo '  +  that.type + ' is : ' + (thisTime / thatTime)
+      return `${this.type} / ${that.type} is : ${thisTime / thatTime}`
     }
   }
 
   return {
     less,
-    lessCounts,
     exch,
+    lessCounts,
     exchCounts,
     sortCompare
   }

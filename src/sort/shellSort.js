@@ -18,16 +18,16 @@ shell.sort = function(a) {
   }
 }
 
-shell.drawSorting = function*(a, ctx, w, h) {
-  const animateSort = animateSortRaw(ctx, w, h)
+shell.drawSorting = function*(a, ctx, w, h, style) {
+  const { less, exch } = animateSortRaw(ctx, w, h, style)
   const N = a.length
 
   let step = 1
   while(step < N/3) step = 3 * step + 1 // h = 1 4 13 40 ...
   while(step >= 1) {
     for(let i = step; i < N; i++) {
-      for(let j = i; j >= step && (yield* animateSort.less(a, j, j - step)); j -= step)
-        yield* animateSort.exch(a, j - step, j)
+      for(let j = i; j >= step && (yield* less(a, j, j - step)); j -= step)
+        yield* exch(a, j - step, j)
     }
     step = Math.floor(step / 3)
   }

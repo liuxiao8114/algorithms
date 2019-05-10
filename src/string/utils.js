@@ -1,6 +1,12 @@
 const EIHGT_BIT = 8
 
-export default function BinaryStdIn() {
+export { MinPQ } from '../sort/utils'
+
+export function BinaryStdIn() {
+  function readString() {
+
+  }
+
   function readBoolean() {
 
   }
@@ -18,9 +24,14 @@ export default function BinaryStdIn() {
   }
 
   return {
+    readString,
     readBoolean,
     readChar,
     isEmpty,
     close
   }
+}
+
+export function BinaryStdOut() {
+
 }
