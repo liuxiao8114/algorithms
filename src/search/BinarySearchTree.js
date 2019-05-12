@@ -6,21 +6,30 @@ function Node(key, value) {
   this.N = 1
 }
 
-function BinarySearchTree() {
+Node.prototype = {
+  compareTo(key) {
+    return this.key > key
+  }
+}
+
+export default function BinarySearchTree() {
   this.root = null
 }
 
 BinarySearchTree.prototype = {
   put(key, value) {
     function iter(node, key, value) {
-      if(!node) return new Node(key, value)
-      if(node.key > key) return node.right = iter(node.right, key, value)
-      if(node.key < key) return node.left = iter(node.left, key, value)
+      if(!node) return node = new Node(key, value)
+      if(node.key > key) return node.left = iter(node.left, key, value)
+      if(node.key < key) return node.right = iter(node.right, key, value)
       node.value = value
       node.N = node.left.N + node.right.N + 1
       return node
     }
     return iter(this.root, key, value)
+  },
+  putIterator() {
+
   },
   get(key) {
     function iter(key, node) {
@@ -30,6 +39,9 @@ BinarySearchTree.prototype = {
       return node.value
     }
     return iter(key, this.root)
+  },
+  getIterator() {
+
   },
   max() {
     if(!this.root) throw new Error('cannot get MAX from empty BST')
