@@ -12,7 +12,7 @@ export default function frequencyCounter(path, st, callback) {
       if(next !== ' ') {
         data += next
       } else {
-        data.replace(/\n/g, '')
+        data = data.replace(/\r\n/g, '').replace(/\n/g, '')
         if(!st.contains(data)) st.put(data, 1)
         else st.put(data, st.get(data) + 1)
         data = ''
@@ -20,7 +20,7 @@ export default function frequencyCounter(path, st, callback) {
       next = stream.read(1)
     }
     if(data) {
-      data = data.replace(/\n/g, '')
+      data = data.replace(/\r\n/g, '')
       if(!st.contains(data)) st.put(data, 1)
       else st.put(data, st.get(data) + 1)
       data = ''

@@ -52,33 +52,6 @@ describe('utils test cases', () => {
     }
     frequencyCounter(TEXT_PATH, st, maxCounter)
   })
-/*
-  it('uses createReadStream to read a file', () => {
-    const stream = fs.createReadStream(TEXT_PATH)
-    stream.setEncoding('utf8')
-    let i = 0
-    stream.on('readable', () => {
-      expect(stream.read(1)).toEqual(TEXT[i++])
-      done() //eslint-disable-line
-    })
-  })
-
-    // stream.pause()
-    // console.log(`readable: ${stream.read()}`)
-    // console.log(`isPaused: ${stream.isPaused()}`)
-    let arr = []
-    stream.on('data', function (chunk) {
-      arr.push(chunk)
-    })
-
-    while (data) {
-      console.log(`data2: ${data}`)
-      data = this.read()
-    }
-    stream.on('end', () => {
-      console.log(`end`)
-    })
-*/
 
 /*
     return fs.readFile('test/search/littleWords.txt', 'utf8', (err, data) => {
