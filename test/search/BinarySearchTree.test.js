@@ -2,26 +2,17 @@ import BinarySearchTree from '../../src/search/BinarySearchTree'
 import frequencyCounter from '../../src/search/utils'
 
 const TEXT_PATH = `test/search/littleWords.txt`
-const TEST_KEYS_ORDERED = `a b c d e`
-const TEST_KEYS_REPEATED = `e d c b a a b c d e`
-const TEST_VALUES = [ 0, 1, 2, 3, 4 ]
+const TEST_3_2_1 = `E A S Y Q U E S T I O N`
 const MAX_WORD = `was`
 
-describe('BinarySearchST test cases', () => {
-  it('could put key-value in st', () => {
-    const st = new BinarySearchTree()
-    st.put('a', 0)
-    st.put('b', 1)
-    expect(st.get('b')).toBe(1)
-    expect(st.get('c')).toBe(null)
-    /*
-    const words = TEST_KEYS_REPEATED.split(/\s+/)
-    let i = 0, j = 5
-    for(let word of words)
-      st.put(word, i++)
-    for(let key of words)
-      expect(st.get(key)).toBe(j++)
-    */
+describe('BinarySearchTree test cases', () => {
+  let st
+
+  beforeEach(() => {
+    st = new BinarySearchTree()
+  })
+
+  it('', () => {
 
   })
 /*

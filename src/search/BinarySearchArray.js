@@ -13,7 +13,7 @@ BinarySearchST.prototype = {
     return this.values[i]
   },
   put(key, value) {
-    let i = this.rankIterator(key)
+    let i = this.rankRecusive(key)
     if(this.keys[i] === key) this.values[i] = value
     else {
       for(let j = this.N; j > i; j--) {
