@@ -1,44 +1,9 @@
 import frequencyCounter from '../../src/search/utils'
 import SequentialSearchST from '../../src/search/SequentialSearchST'
 
-const TEXT_PATH = `test/search/littleWords.txt`
-const MAX_WORDS = `was`
-
-describe('do some RegExps', () => {
-  it('/g pattern', () => {
-    const text = 'cat, bat, sat, fat'
-    const pattern = /.at/g
-    let matches = pattern.exec(text)
-    expect(matches[0]).toBe('cat')
-    expect(pattern.lastIndex).toBe(3)
-    expect(matches.index).toBe(0)
-    matches = pattern.exec(text)
-    expect(matches[0]).toBe('bat')
-  })
-
-  it('works different with diff patterns', () => {
-    const text1 = 'hello1 ',
-          text2 = 'hello2 ',
-          text3 = '\r\nhello3 '
-    const text = `${text1 + text2 + text3}`,
-          pattern = /hello\d\s?/,
-          globalPattern = /hello\d\s?/g,
-          strickyPattern = /hello\d\s?/s,
-          multilinePattern = /hello\d\s?/m
-    let matches = pattern.exec(text),
-        globalMatches = globalPattern.exec(text),
-        strickyMatches = strickyPattern.exec(text),
-        multilineMatches = multilinePattern.exec(text)
-
-    expect(matches[0]).toBe(text1)
-    expect(globalMatches[0]).toBe(text1)
-    expect(strickyMatches[0]).toBe(text1)
-    expect(multilineMatches[0]).toBe(text1)
-
-    expect(pattern.lastIndex).toBe(0)
-    expect(globalPattern.lastIndex).toBe(7)
-  })
-})
+const LITTLE_WORDS_TEXT_PATH = `test/search/littleWords.txt`
+const LITTLE_WORDS_MAX_WORD = `was`
+const LITTLE_WORDS_MAX_COUNT = 3
 
 describe('utils test cases', () => {
   it('gives counts for ST testing', done => {
@@ -47,18 +12,9 @@ describe('utils test cases', () => {
       let max = null
       for(let item of st.items())
         if(!max || item.value > max.value) max = item
-      expect(max).toEqual({ key: MAX_WORDS, value: 3 })
+      expect(max).toEqual({ key: LITTLE_WORDS_MAX_WORD, value: LITTLE_WORDS_MAX_COUNT })
       done()
     }
-    frequencyCounter(TEXT_PATH, st, maxCounter)
+    frequencyCounter(LITTLE_WORDS_TEXT_PATH, st, maxCounter)
   })
-
-/*
-    return fs.readFile('test/search/littleWords.txt', 'utf8', (err, data) => {
-      if(err)
-        throw new Error(`read File: ${err}`)
-      const words = data.split(/s+/m)
-      expect(words).toEqual([])
-    })
-*/
 })

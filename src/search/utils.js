@@ -8,19 +8,16 @@ export default function frequencyCounter(path, st, callback) {
   stream.on('readable', () => {
     let next = stream.read(1)
     while(next) {
-//      console.log(`in readable process: ${next}`) //eslint-disable-line
-      if(next !== ' ') {
-        data += next
-      } else {
-        data = data.replace(/\r\n/g, '').replace(/\n/g, '')
+      if(next.match(/\r\n/) || next.match(/\n/) || next.trim() === '') {
         if(!st.contains(data)) st.put(data, 1)
         else st.put(data, st.get(data) + 1)
         data = ''
+      } else {
+        data += next
       }
       next = stream.read(1)
     }
     if(data) {
-      data = data.replace(/\r\n/g, '')
       if(!st.contains(data)) st.put(data, 1)
       else st.put(data, st.get(data) + 1)
       data = ''
