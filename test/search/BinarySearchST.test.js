@@ -1,4 +1,4 @@
-import BinarySearchArray from '../../src/search/BinarySearchArray'
+import BinarySearchST from '../../src/search/BinarySearchST'
 import frequencyCounter from '../../src/search/utils'
 
 const TEXT_PATH = `test/search/littleWords.txt`
@@ -13,7 +13,7 @@ describe('BinarySearchST test cases', () => {
   })
 
   it('could put key-value in st', () => {
-    const words = TEXT_KEYS.split(' ')
+    const words = TEXT_KEYS.split(/\s+/)
     let i = 0
     for(let word of words)
       st.put(word, i++)
@@ -22,7 +22,6 @@ describe('BinarySearchST test cases', () => {
   })
 
   it('use frequencyCounter to get the max', done => {
->>>>>>> c2fd2459626ea8652583d3aa7004169bedfc13ad
     const maxCounter = () => {
       let maxIndex = 0
       const len = st.keys.length

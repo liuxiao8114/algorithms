@@ -12,8 +12,15 @@ describe('BinarySearchTree test cases', () => {
     st = new BinarySearchTree()
   })
 
-  it('', () => {
+  it('prepare', () => {
+    const counts = []
+    let i = 1
+    for(let letter of TEST_3_2_1.split(/\s+/)) {
+      counts.push(st.put(letter, i++).counter)
+    }
 
+    console.log(counts)
+    console.log(st.root)
   })
 /*
 it('could get value from st', () => {

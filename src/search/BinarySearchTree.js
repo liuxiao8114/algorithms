@@ -7,8 +7,8 @@ function Node(key, value) {
 }
 
 Node.prototype = {
-  compareTo(key) {
-    return this.key > key
+  compareTo(key, counter) {
+    return this.key > key ? 1 : this.key < key ? -1 : 0
   }
 }
 
@@ -17,16 +17,22 @@ export default function BinarySearchTree() {
 }
 
 BinarySearchTree.prototype = {
-  put(key, value) {
+  put(key, value, counter = 0) {
     function iter(node, key, value) {
       if(!node) return node = new Node(key, value)
-      if(node.key > key) return node.left = iter(node.left, key, value)
-      if(node.key < key) return node.right = iter(node.right, key, value)
+      counter++
+      console.log(counter)
+      if(this.key > key) return node.left = iter(node.left, key, value)
+      if(this.key < key) return node.right = iter(node.right, key, value)
       node.value = value
       node.N = node.left.N + node.right.N + 1
       return node
     }
-    return iter(this.root, key, value)
+    const node = iter(this.root, key, value)
+    return {
+      counter,
+      node
+    }
   },
   putIterator() {
 
