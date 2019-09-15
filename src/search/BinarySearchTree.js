@@ -14,7 +14,7 @@ Node.prototype = {
     return this.N
   },
   compareTo(key) {
-    return this.key > key
+    return this.key > key ? 1 : this.key < key ? -1 : 0
   }
 }
 
@@ -43,6 +43,9 @@ BinarySearchTree.prototype = {
 
     return iter(this.root, key, value)
   },
+  putIterator() {
+
+  },
   get(key) {
     function iter(key, node) {
       if(!node) return null
@@ -51,6 +54,9 @@ BinarySearchTree.prototype = {
       return node.value
     }
     return iter(key, this.root)
+  },
+  getIterator() {
+
   },
   max() {
     if(!this.root) throw new Error('cannot get MAX from empty BST')

@@ -13,7 +13,7 @@ describe('BinarySearchST test cases', () => {
   })
 
   it('could put key-value in st', () => {
-    const words = TEXT_KEYS.split(' ')
+    const words = TEXT_KEYS.split(/\s+/)
     let i = 0
     for(let word of words)
       st.put(word, i++)

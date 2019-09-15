@@ -11,7 +11,7 @@ describe('BinarySearchTree test cases', () => {
   beforeEach(() => {
     st = new BinarySearchTree()
   })
-
+  
   it('put in st', () => {
     const a = TEST_3_2_1.split(/\s+/)
     for(let i = 0; i < a.length; i++)
@@ -44,4 +44,28 @@ describe('BinarySearchTree test cases', () => {
     expect(st.max()).toBe(a.length)
     expect(st.min()).toBe(0)
   })
+/*
+it('could get value from st', () => {
+  const st = new BinarySearchTree()
+  st.keys = TEST_KEYS_ORDERED.split(/\s+/)
+  st.values = TEST_VALUES
+  let i = 0
+  for(let key of st.keys)
+    expect(st.get(key)).toBe(i++)
+})
+
+it('use frequencyCounter to get the max', done => {
+  const st = new BinarySearchTree()
+  const maxCounter = () => {
+    let maxIndex = 0
+    const len = st.keys.length
+    for(let i = 0; i < len; i++)
+      if(st.values[i] > st.values[maxIndex]) maxIndex = i
+    expect(st.keys[maxIndex]).toEqual(MAX_WORD)
+    expect(st.values[maxIndex]).toEqual(3)
+    done()
+  }
+  frequencyCounter(TEXT_PATH, st, maxCounter)
+})
+*/
 })
