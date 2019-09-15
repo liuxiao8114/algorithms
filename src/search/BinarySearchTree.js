@@ -31,15 +31,16 @@ BinarySearchTree.prototype = {
     if(!this.root) return this.root = new Node(key, value)
 
     function iter(node, key, value) {
-      console.log(`node: ${node}`)
+      // console.log(`node: ${node}`)
       if(!node) return new Node(key, value)
-      if(node.key > key) return node.right = iter(node.right, key, value)
-      if(node.key < key) return node.left = iter(node.left, key, value)
-      node.value = value
+      if(node.key < key) node.right = iter(node.right, key, value)
+      else if(node.key > key) node.left = iter(node.left, key, value)
+      else node.value = value
       node.N = size(node.left) + size(node.right) + 1
 
       return node
     }
+
     return iter(this.root, key, value)
   },
   get(key) {

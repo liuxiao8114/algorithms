@@ -14,22 +14,34 @@ describe('BinarySearchTree test cases', () => {
 
   it('put in st', () => {
     const a = TEST_3_2_1.split(/\s+/)
-    for(let i = 0; i < a.length; i++) {
+    for(let i = 0; i < a.length; i++)
       st.put(a[i], i)
-    }
 
-    const root = st.root
-    expect(root.key).toBe('E')
-    expect(root.left.key).toBe('A')
+    expect(st.get('E')).toBe(6)
+    expect(st.get('A')).toBe(1)
+    expect(st.get('S')).toBe(7)
+    expect(st.get('Y')).toBe(3)
+    expect(st.get('Q')).toBe(4)
+    expect(st.get('U')).toBe(5)
+    expect(st.size()).toBe(10)
+  })
 
-/*
-expect(st.get('E')).toBe(6)
-expect(st.get('A')).toBe(1)
-expect(st.get('S')).toBe(7)
-expect(st.get('Y')).toBe(3)
-expect(st.get('Q')).toBe(4)
-expect(st.get('U')).toBe(5)
-*/
+  it('put in st in reverse', () => {
+    // const a = [ 'g', 'f', 'e', 'd', 'c', 'b', 'a' ]
+    const a = [ 'a', 'b', 'c', 'd', 'e', 'f', 'g' ]
+    for(let i = 0; i < a.length; i++)
+      st.put(a[i], i)
 
+    let result = 0
+    expect(st.get('a')).toBe(result++)
+    expect(st.get('b')).toBe(result++)
+    expect(st.get('c')).toBe(result++)
+    expect(st.get('d')).toBe(result++)
+    expect(st.get('e')).toBe(result++)
+    expect(st.get('f')).toBe(result++)
+    expect(st.get('g')).toBe(result++)
+    expect(st.size()).toBe(a.length)
+    expect(st.max()).toBe(a.length)
+    expect(st.min()).toBe(0)
   })
 })
