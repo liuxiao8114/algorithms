@@ -6,12 +6,17 @@ describe('tries test cases', () => {
 
   it('is a handshake', () => {
     const st = new StringST(TEST)
+    const set = new Set()
+
+    for(let s of TEST)
+      set.add(s)
+
+    const noDuplicatedTest = [ ...set ]
 
     expect(st.get('she')).toBe(TEST.lastIndexOf('she'))
-    expect(st.get('shore')).toBe(TEST.length - 1)
+    expect(st.get('shore')).toBe(TEST.lastIndexOf('shore'))
     expect(st.get('sea')).toBe(TEST.lastIndexOf('sea'))
-    // console.log(`st.size: ${st.size}`)
-    expect(st.getSize()).toBe(TEST.length)
+    expect(st.getSize()).toBe(noDuplicatedTest.length)
   })
 })
 

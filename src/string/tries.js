@@ -11,17 +11,16 @@ export function StringST(a, R = 256) {
 
   if(typeof a === 'string')
     this.put(a, this.size)
-  else if(Array.isArray(a)) {
-    for(let one of a) {
+  else if(Array.isArray(a))
+    a.forEach((one, i) => {
       if(typeof one === 'string')
-        this.put(one, this.size)
+        this.put(one, i)
       else if(typeof one === 'object') {
         const { key, value } = one
         this.put(key, value)
       } else
         throw new Error(`cannot parse ${a} with item: ${one}`)
-    }
-  }
+    })
   else if(typeof a === 'object')
     this.put(a.key, a.value)
 }
@@ -29,13 +28,13 @@ export function StringST(a, R = 256) {
 StringST.prototype = {
   constructor: StringST,
   get(key) {
-    return this.getNode(this.root, key, 0)
+    return this.getNode(this.root, key, 0).value
   },
   getNode(node, key, d) {
     if(node === null)
       return
     if(d === key.length)
-      return node.value
+      return node
     return this.getNode(node.next[key.charCodeAt(d)], key, d + 1)
   },
   put(key, value) {
@@ -45,8 +44,9 @@ StringST.prototype = {
     if(!node)
       node = new Node(null, this.R)
     if(d === key.length) {
+      if(node.value === null)
+        this.size += 1
       node.value = value
-      this.size += 1
       return node
     }
 
@@ -76,10 +76,38 @@ StringST.prototype = {
 
     for(let i = 0; i < this.R; i++)
       this.collect(node.next[i], s + String.fromCharCode(i), q)
-  }
+  },
 }
 
 /*
+Deletion. The first step needed to delete a key-value pair
+from a trie is to use a normal search to find the node corresponding
+to the key and set the corresponding value to
+null. If that node has a non-null link to a child, then no
+more work is required; if all the links are null, we need to
+remove the node from the data structure. If doing so leaves
+all the links null in its parent, we need to remove that node,
+and so forth. The implementation on the facing page demonstrates
+that this action can be accomplished with remarkably
+little code, using our standard recursive setup: after the
+recursive calls for a node x, we return null if the client value
+and all of the links in a node are null; otherwise we return
+x.
+private Node delete(Node x, String key, int d)
+{
+  if (x == null) return null;
+  if (d == key.length())
+  x.val = null;
+  else
+  {
+  char c = key.charAt(d);
+  x.next[c] = delete(x.next[c], key, d+1);
+  }
+  if (x.val != null) return x;
+  for (char c = 0; c < R; c++)
+  if (x.next[c] != null) return x;
+  return null;
+}
 
 public Iterable<String> keysWithPrefix(String pre)
 {
