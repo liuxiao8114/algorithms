@@ -5,9 +5,23 @@ function Node(value = null, R = 256) {
   this.next = new Array(R).fill(null)
 }
 
-export function StringST(a, R = 256) {
-  this.root = new Node(null, R)
+Node.prototype.toString = function() {
+  return this.value
+}
+
+function charCodeAtWithOffset(s, c, offset = 0) {
+  return s.charCodeAt(c) - offset
+}
+
+function fromCharCode(i, offset = 0) {
+  return String.fromCharCode(i + offset)
+}
+
+export function StringST(a, options = {}) {
   this.size = 0
+  this.R = options.R || 256
+  this.offset = options.offset || 0
+  this.root = new Node(null, this.R)
 
   if(typeof a === 'string')
     this.put(a, this.size)
@@ -31,16 +45,18 @@ StringST.prototype = {
     return this.getNode(this.root, key, 0).value
   },
   getNode(node, key, d) {
-    if(node === null)
+    console.log(`getNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
+    if(!node)
       return
     if(d === key.length)
       return node
-    return this.getNode(node.next[key.charCodeAt(d)], key, d + 1)
+    return this.getNode(node.next[charCodeAtWithOffset(key, d, this.offset)], key, d + 1)
   },
   put(key, value) {
     return this.putNode(this.root, key, value, 0)
   },
   putNode(node, key, value, d) {
+    // console.log(`putNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
     if(!node)
       node = new Node(null, this.R)
     if(d === key.length) {
@@ -50,7 +66,7 @@ StringST.prototype = {
       return node
     }
 
-    const c = key.charCodeAt(d)
+    const c = charCodeAtWithOffset(key, d, this.offset)
     node.next[c] = this.putNode(node.next[c], key, value, d + 1)
 
     return node
@@ -68,6 +84,7 @@ StringST.prototype = {
     return q
   },
   collect(node, s, q) {
+    console.log(`collect -- node: ${node && node.toString()}, key: ${s}, q: ${q.toString()}`)
     if(!node)
       return
 
@@ -75,11 +92,55 @@ StringST.prototype = {
       q.enqueue(s)
 
     for(let i = 0; i < this.R; i++)
-      this.collect(node.next[i], s + String.fromCharCode(i), q)
+      this.collect(node.next[i], s + fromCharCode(i, this.offset), q)
+  },
+  longestPrefixOf(s) {
+    return this.search(this.root, s, 0, 0)
+  },
+  search(node, s, d, len) {
+    if(node != null) {
+
+    }
+
+    if(d > s.length)
+
+    if(node.value === charCodeAtWithOffset(s, d, this.offset))
+    this.search()
+  },
+  delete(key) {
+    return this.deleteNode(this.root, key, 0)
+  },
+  deleteNode(node, key, d) {
+    console.log(`deleteNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
+    if(node == null)
+      return
+
+    if(d === key.length) {
+      node.value = null
+      this.size -= 1
+    } else {
+      const c = key.charCodeAt(d) - this.offset
+      node.next[c] = this.deleteNode(node.next[c], key, d + 1)
+    }
+
+    if(node.value != null)
+      return node
+
+    for(let i = 0; i < this.R; i++)
+      if(node.next[i] != null) return node
+
+    return null
   },
 }
 
 /*
+To find the longest key that is a prefix of a given string, we use a recursive
+method like get() that keeps track of the length of the longest key found on the
+search path (by passing it as a parameter to the recursive method, updating the value
+whenever a node with a non-null value is encountered). The
+search ends when the end of the string or a null link is encountered,
+whichever comes first.
+
 Deletion. The first step needed to delete a key-value pair
 from a trie is to use a normal search to find the node corresponding
 to the key and set the corresponding value to
@@ -93,6 +154,7 @@ little code, using our standard recursive setup: after the
 recursive calls for a node x, we return null if the client value
 and all of the links in a node are null; otherwise we return
 x.
+
 private Node delete(Node x, String key, int d)
 {
   if (x == null) return null;
@@ -152,6 +214,4 @@ the keysWithPrefix() methods
 in the API. To implement keys()
 we call keysWithPrefix() with
 the empty string as argument;
-
-
 */

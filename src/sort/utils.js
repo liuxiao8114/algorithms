@@ -31,6 +31,20 @@ Queue.prototype = {
   },
   isEmpty() {
     return this.first === null
+  },
+  toString() {
+    if(this.first == null || this.last == null || this.length === 0)
+      return 'empty queue'
+
+    let s = this.first.item,
+        next = this.first.next
+
+    while(next != null) {
+      s += `, ${next.item}`
+      next = next.next
+    }
+
+    return s
   }
 }
 

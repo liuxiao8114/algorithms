@@ -4,19 +4,29 @@ describe('tries test cases', () => {
 
   const TEST = `she sells sea shells by the sea shore`.split(/\s+/)
 
-  it('is a handshake', () => {
-    const st = new StringST(TEST)
-    const set = new Set()
+  const smallAlphabetOptions = { R: 26, offset: 97 }
+  const st = new StringST(TEST, smallAlphabetOptions)
+  const set = new Set()
 
-    for(let s of TEST)
-      set.add(s)
+  for(let s of TEST)
+    set.add(s)
 
-    const noDuplicatedTest = [ ...set ]
+  const noDuplicatedTest = [ ...set ]
 
-    expect(st.get('she')).toBe(TEST.lastIndexOf('she'))
-    expect(st.get('shore')).toBe(TEST.lastIndexOf('shore'))
-    expect(st.get('sea')).toBe(TEST.lastIndexOf('sea'))
+  it('can get key', () => {
+    // expect(st.get('she')).toBe(TEST.lastIndexOf('she'))
+    // expect(st.get('shore')).toBe(TEST.lastIndexOf('shore'))
+    // expect(st.get('shells')).toBe(TEST.lastIndexOf('shells'))
     expect(st.getSize()).toBe(noDuplicatedTest.length)
+  })
+
+  // it('shows keysWithPrefix', () => {
+  //   console.log(st.keysWithPrefix(`she`))
+  // })
+
+  it('can delete a key', () => {
+    // st.put('shels')
+    st.delete('shells')
   })
 })
 
