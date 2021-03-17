@@ -41,7 +41,7 @@ export function StringST(a, options = {}) {
       } else
         throw new Error(`cannot parse ${a} with item: ${one}`)
     })
-  else if(typeof a === 'object')
+  else if(a && a.key && a.value)
     this.put(a.key, a.value)
 }
 
@@ -78,6 +78,42 @@ StringST.prototype = {
 
     return node
   },
+
+  // 5.2.5
+  putNonRecursive(key, value) {
+    let node = this.root,
+        d = 0
+
+    while(d < key.length) {
+      // console.log(`putNonRecursive -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
+      const c = charCodeAtWithOffset(key, d, this.offset)
+      if(!node.next[c])
+        node.next[c] = new Node(null, this.R)
+      node = node.next[c]
+      d += 1
+    }
+
+    if(node.value == null)
+      this.size += 1
+
+    node.value = value
+    return node
+  },
+  getNonRecursive(key) {
+    let node = this.root
+    let d = 0
+
+    while(d < key.length) {
+      // console.log(`getNonRecursive -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
+      if(!node)
+        return null
+
+      node = node.next[charCodeAtWithOffset(key, d, this.offset)]
+      d += 1
+    }
+
+    return node && node.value
+  },
   getSize() {
     return this.size
   },
@@ -90,12 +126,26 @@ StringST.prototype = {
 
     return q
   },
+  keysWithPrefixNonRecursive(pre) {
+    const q = new Queue()
+    const matchNode = this.getNode(this.root, pre, 0)
+
+    let node = matchNode
+    while(node) {
+      if(node.value != null)
+        q.enqueue(node)
+
+      for(let i = 0; i < this.R; i++) {
+        let nextNode = node.next[i]
+      }
+    }
+  },
   collect(node, s, q) {
     // console.log(`collect -- node: ${node && node.toString()}, key: ${s}, q: ${q.toString()}`)
     if(!node)
       return
 
-    if(node.value !== null)
+    if(node.value != null)
       q.enqueue(s)
 
     for(let i = 0; i < this.R; i++)
@@ -126,7 +176,7 @@ StringST.prototype = {
       node.value = null
       this.size -= 1
     } else {
-      const c = key.charCodeAt(d) - this.offset
+      const c = charCodeAtWithOffset(key, d, this.offset)
       node.next[c] = this.deleteNode(node.next[c], key, d + 1)
     }
 
@@ -138,6 +188,41 @@ StringST.prototype = {
 
     return null
   },
+  deleteNonRecursive(key) {
+    let node = this.root
+    let d = 0
+    const stack = []
+
+    while(d < key.length) {
+      if(!node)
+        return
+
+      const c = charCodeAtWithOffset(key, d, this.offset)
+      stack.push({ node, c })
+      node = node.next[c]
+      d += 1
+    }
+
+    if(node.value != null) {
+      this.size -= 1
+      node.value = null
+    }
+
+    while(stack.length > 0) {
+      // console.log(`deleteNonRecursive -- node: ${node && node.toString()}, key: ${key}`)
+      if(node.value != null)
+        return
+
+      for(let i = 0; i < this.R; i++)
+        if(node.next[i])
+          return
+
+      const { node: parentNode, c } = stack.pop()
+      // console.log(`deleteNonRecursive -- check parrentNode: ${parentNode && parentNode.toString()}, c: ${c}`)
+      parentNode.next[c] = null
+      node = parentNode
+    }
+  }
 }
 
 function TernaryNode(c) {
@@ -170,7 +255,7 @@ export function TernaryST(a, options = {}) {
       } else
         throw new Error(`cannot parse ${a} with item: ${one}`)
     })
-  else if(typeof a === 'object')
+  else if(a && a.key && a.value)
     this.put(a.key, a.value)
 }
 
