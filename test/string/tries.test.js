@@ -1,4 +1,5 @@
 const path = require('path')
+const assert = require('assert')
 const { StringST, TernaryST } = require(path.join(process.cwd(), 'src/string/tries'))
 
 const TEST = `she sells sea shells by the sea shore`.split(/\s+/)
@@ -50,12 +51,28 @@ describe('tries test cases', () => {
 })
 
 describe('TernaryST test cases', () => {
-  let st = null
+  let tst = null
   let set = null
   let noDuplicatedTest = null
 
+  /*
+
+`she sells sea shells by the sea shore`
+
+        s
+  /     |     \
+  b     h      t
+  |   / |      |
+  y  e  e      h
+     |  |  \   |
+     l  l   o  e
+  /  |  |   |
+  a  l  l   r
+     s  |   |
+        s   e
+  */
   beforeEach(() => {
-    st = new TernaryST(TEST, smallAlphabetOptions)
+    tst = new TernaryST(TEST, smallAlphabetOptions)
     set = new Set()
 
     for(let s of TEST)
@@ -65,14 +82,55 @@ describe('TernaryST test cases', () => {
   })
 
   it('init TernaryST', () => {
-    expect(st.get('she')).toBe(TEST.lastIndexOf('she'))
-    expect(st.get('shore')).toBe(TEST.lastIndexOf('shore'))
-    expect(st.get('shells')).toBe(TEST.lastIndexOf('shells'))
-    expect(st.get('shel')).toBeNull()
-    expect(st.get('zz')).toBeNull()
-    expect(st.get('sh')).toBeNull()
+    expect(tst.get('she')).toBe(TEST.lastIndexOf('she'))
+    expect(tst.get('shore')).toBe(TEST.lastIndexOf('shore'))
+    expect(tst.get('shells')).toBe(TEST.lastIndexOf('shells'))
+    expect(tst.get('shel')).toBeNull()
+    expect(tst.get('zz')).toBeNull()
+    expect(tst.get('sh')).toBeNull()
 
-    expect(st.getSize()).toBe(noDuplicatedTest.length)
+    expect(tst.getSize()).toBe(noDuplicatedTest.length)
+  })
+
+  it('delete nodes in TernaryST', () => {
+    function charCodeWithOffset(s, offset = 97) {
+      return s.charCodeAt(0) - offset
+    }
+
+    assert(tst.get('she') === 0)
+    const SHE_NODE = tst.getNode(tst.root, 'she', 0)
+    const B_NODE = tst.getNode(tst.root, 'b', 0)
+    // console.log(`SHE_NODE: ${charCodeWithOffset('l')}`)
+
+    assert(SHE_NODE.mid.c === charCodeWithOffset('l'))
+    assert(SHE_NODE.mid.mid.c === charCodeWithOffset('l'))
+    assert(SHE_NODE.mid.mid.mid.c === charCodeWithOffset('s'))
+
+    assert(B_NODE.mid.c === charCodeWithOffset('y'))
+    assert(B_NODE.left == null)
+    assert(B_NODE.right == null)
+
+    // tst.delete('by')
+
+    tst.delete('shells')
+
+    expect(SHE_NODE.mid).toBe(null)
+  })
+
+  it('keysWithPrefix', () => {
+    expect(
+      tst.keysWithPrefix(`she`).toString().trim()
+    ).toEqual('she, shells')
+
+    tst.delete('shells')
+    tst.put('sheet', 99)
+    tst.put('sheep', 999)
+    tst.put('sheez', 9999)
+    tst.put('sheetp', 99999)
+
+    expect(
+      tst.keysWithPrefix(`she`).toString().trim()
+    ).toEqual('she, sheet, sheep, sheetp, sheez')
   })
 })
 
@@ -112,12 +170,21 @@ describe('EXERCISES', () => {
         int size() number of keys in the set
         int toString() string representation of the set
   */
-  // it('5.2.1', () => {
-  //   const TEST521 = `no is th ti fo al go pe to co to th ai of th pa`
-  //
-  // })
+  it('5.2.1 - 5.2.4', () => {
+    const TEST521_2 = `no is th ti fo al go pe to co to th ai of th pa`
+    const TEST523_4 = `now is the time for all good people to come to the aid of`
 
-  it.only('5.2.5 StringST', () => {
+    /*
+       (a)......(c)......(f)......(g)......(i)......(n)......(o)......(p)......(t)......
+        |       |
+      ......(i,)......(l,)......(s,1)  (o,0)
+
+       (a)......(c)
+    */
+
+  })
+
+  it('5.2.5 StringST', () => {
     const st = new StringST(null, smallAlphabetOptions)
 
     st.putNonRecursive('she', 0)
@@ -135,6 +202,63 @@ describe('EXERCISES', () => {
     st.deleteNonRecursive('shell')
     expect(st.getNonRecursive('shell')).toBeNull()
     expect(st.getNonRecursive('she')).toBe(0)
+
+    expect(st.longestPrefixOfNoRecursive('she')).toBe(3)
+    expect(st.longestPrefixOfNoRecursive('shell')).toBe(3)
+    st.putNonRecursive('shells', 3) // add shells
+    expect(st.longestPrefixOfNoRecursive('shells')).toBe(6)
+
+    expect(
+      st.keysWithPrefixNonRecursive(`she`).toString().trim()
+    ).toEqual('she, shells')
+  })
+
+  it('5.2.5 TernaryST', () => {
+//     console.log(
+//       JSON.stringify(
+//         {"AddProjectInfoResults":[{"IsSuccess":0,"Message":"得意先部門コードを入力してください。\r\n得意先担当者コードを入力してください。\r\n請求先コードを入力してください。\r\nクライアントコードを入力してください。\r\n受注予定日の入力形式が不正です。","RowNumber":2,"Parameter":{"CodeProjectOld":"1111","CodeProjectKakuritsu":"1","NameProject":"テスト案件","CodeClient":"","ElseNameClient":"","CodeTokuisaki":"99995","ElseNameTokuisaki":"","CodeTokuisakiSection":"","ElseNameTokuisakiSection":"","CodeTokuisakiPerson":"","ElseNameTokuisakiPerson":"","CodeSeikyusaki":"","ElseNameSeikyusaki":"","CodeShukeikubun":"9970","CodeMember":"9999","CodeProjectJigyouSegment":"2","DateHikiai":"2/10/2021","DateKekkaHappyou":"2021/2/228","DateUriageYotei":"3/31/2021","Memo":"メモ","CodeProjectGroup":"","CodeTypeDataImportProgress":"1","DateSeikyuYotei":"","DateNyukinYotei":"","DateKanryouYotei":"","AnkenNaiyou":"案件内容"}}],"AddProjectSalesResults":[{"IsSuccess":0,"Message":"指定された旧JOBNo.が存在しません。\r\n同一案件で申請状態が異なるデータが存在します。","RowNumber":2,"Parameter":{"CodeProjectOld":"1111","NameYoteiUriageData":"テスト売上","CodeUriageKubun":"1","Suu":"1","Tanka":"100000","Kingaku":"","CodeTypeDataImportProgress":"2","CodeYoteiUriageData":"1","CodeYoteiUriageProgress":"1"}},{"IsSuccess":0,"Message":"指定された旧JOBNo.が存在しません。\r\n同一案件で申請状態が異なるデータが存在します。","RowNumber":3,"Parameter":{"CodeProjectOld":"1111","NameYoteiUriageData":"テスト売上2","CodeUriageKubun":"2","Suu":"1","Tanka":"50000","Kingaku":"","CodeTypeDataImportProgress":"1","CodeYoteiUriageData":"2","CodeYoteiUriageProgress":"1"}}],"AddProjectExpectedCostResults":[{"IsSuccess":0,"Message":"指定された旧JOBNo.が存在しません。\r\n指定された売上項目Noが存在しません。\r\n同一案件で申請状態が異なるデータが存在します。\r\n課税区分コード（発注）を入力しないでください。\r\n税率（発注）を入力しないでください。","RowNumber":2,"Parameter":{"CodeProjectOld":"1111","NameYoteiGenkaData":"品名1","CodeShiharaisaki":"1","DateShiireYotei":"3/31/2021","Suu":"1","Tanka":"25000","Kingaku":"","CodeHimoku":"6061","CodeGenkaProgressStatus":"1","CodeTypeDataImportProgress":"1","CodeYoteiUriageData":"1","CodeYoteiGenkaData":"1","CodeKazeiKubunHacchu":"1","CodeTanniHacchu":"","DateShiharaiYoteiHacchu":"","KingakuHacchu":"","ShouhizeiHacchu":"","TaxRateHacchu":"10%","ZeikomiKingakuHacchu":""}},{"IsSuccess":0,"Message":"指定された旧JOBNo.が存在しません。\r\n指定された売上項目Noが存在しません。\r\n同一案件で申請状態が異なるデータが存在します。\r\n課税区分コード（発注）を入力しないでください。\r\n税率（発注）を入力しないでください。","RowNumber":3,"Parameter":{"CodeProjectOld":"1111","NameYoteiGenkaData":"品名2","CodeShiharaisaki":"1","DateShiireYotei":"3/31/2021","Suu":"1","Tanka":"5000","Kingaku":"","CodeHimoku":"6062","CodeGenkaProgressStatus":"1","CodeTypeDataImportProgress":"2","CodeYoteiUriageData":"1","CodeYoteiGenkaData":"2","CodeKazeiKubunHacchu":"1","CodeTanniHacchu":"","DateShiharaiYoteiHacchu":"","KingakuHacchu":"","ShouhizeiHacchu":"","TaxRateHacchu":"10%","ZeikomiKingakuHacchu":""}}],"CodeTableImport":"0000028","NameTableImport":"案件基本＋利益計画","IsSuccessAll":0,"Processed":5,"Success":0,"Fail":5}
+// , null, 2
+//       )
+//     )
+    const tst = new TernaryST(null, smallAlphabetOptions)
+    tst.putNonRecursive('she', 0)
+    tst.putNonRecursive('shore', 1)
+    tst.putNonRecursive('shells', 2)
+
+    expect(tst.getNonRecursive('she')).toBe(0)
+    expect(tst.get('she')).toBe(0)
+    expect(tst.getNonRecursive('shore')).toBe(1)
+    expect(tst.get('shore')).toBe(1)
+    expect(tst.getNonRecursive('shells')).toBe(2)
+    expect(tst.get('shells')).toBe(2)
+    expect(tst.getNonRecursive('shel')).toBeNull()
+    expect(tst.getNonRecursive('zz')).toBeNull()
+    expect(tst.getNonRecursive('sh')).toBeNull()
+    expect(tst.getSize()).toBe(3)
+
+    function charCodeWithOffset(s, offset = 97) {
+      return s.charCodeAt(0) - offset
+    }
+
+    tst.putNonRecursive('by', 4)
+
+    assert(tst.get('she') === 0)
+    const SHE_NODE = tst.getNode(tst.root, 'she', 0)
+    const B_NODE = tst.getNode(tst.root, 'b', 0)
+    // console.log(`SHE_NODE: ${charCodeWithOffset('l')}`)
+
+    assert(SHE_NODE.mid.c === charCodeWithOffset('l'))
+    assert(SHE_NODE.mid.mid.c === charCodeWithOffset('l'))
+    assert(SHE_NODE.mid.mid.mid.c === charCodeWithOffset('s'))
+
+    assert(B_NODE.mid.c === charCodeWithOffset('y'))
+    assert(B_NODE.left == null)
+    assert(B_NODE.right == null)
+
+    // tst.delete('by')
+    tst.deleteNonRecursive('shells')
+
+    expect(SHE_NODE.mid).toBe(null)
   })
 })
 
@@ -182,7 +306,26 @@ describe('EXERCISES', () => {
 */
 
 describe('CREATIVE PROBLEMS', () => {
+  it('5.2.7', () => {
+    // The code below set the TernaryST root with the empty string.
+    // It will bind the root value while putting with the key: ''
+    /*
+    function charCodeAtWithOffset(s, c, offset = 0) {
+      if(typeof s !== 'string' || s.length === 0)
+        return Number.MIN_VALUE
+      return s.charCodeAt(c) - offset
+    }
 
+    export function TernaryST(a, options = {}) {
+      this.root = new TernaryNode(Number.MIN_VALUE)
+      ...
+    }
+    */
+    const tst = new TernaryST(null, smallAlphabetOptions)
+    tst.put('she', 0)
+    tst.put('', 1)
+    expect(tst.root.value).toBe(1)
+  })
 })
 /*
 s

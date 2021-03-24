@@ -2,6 +2,9 @@
 TODO:
  1. Why d === key.length used in StringST rather than  d === length - 1 used in TernaryST.
 
+    A. In Tries, the root is always with non-value.
+        Inserting and Seaching always start at root.next but the loop starts at the root node while d is setting with 0.
+        So when reach the root.next in loop, it has setted the d with 1 already.
 */
 
 import { Queue } from './utils'
@@ -16,6 +19,8 @@ Node.prototype.toString = function() {
 }
 
 function charCodeAtWithOffset(s, c, offset = 0) {
+  if(typeof s !== 'string' || s.length === 0)
+    return Number.MIN_VALUE
   return s.charCodeAt(c) - offset
 }
 
@@ -130,15 +135,23 @@ StringST.prototype = {
     const q = new Queue()
     const matchNode = this.getNode(this.root, pre, 0)
 
-    let node = matchNode
-    while(node) {
-      if(node.value != null)
-        q.enqueue(node)
+    if(!matchNode)
+      return null
 
-      for(let i = 0; i < this.R; i++) {
-        let nextNode = node.next[i]
-      }
+    const stack = [ { node: matchNode, s: pre } ]
+
+    while(stack.length > 0) {
+      const { node, s } = stack.pop()
+
+      if(node.value != null)
+        q.enqueue(s)
+
+      for(let i = 0; i < this.R; i++)
+        node.next[i]
+          && stack.push({ node: node.next[i], s: s + fromCharCode(i, this.offset) })
     }
+
+    return q
   },
   collect(node, s, q) {
     // console.log(`collect -- node: ${node && node.toString()}, key: ${s}, q: ${q.toString()}`)
@@ -164,9 +177,28 @@ StringST.prototype = {
       return this.search(node.next[c], s, d + 1, d)
     return this.search(node.next[c], s, d + 1, len)
   },
+  longestPrefixOfNoRecursive(s) {
+    let node = this.root,
+        d = 0,
+        len = 0
+
+    while(node && d <= s.length) {
+      if(node.value != null)
+        len = d
+
+      node = node.next[charCodeAtWithOffset(s, d, this.offset)]
+      d += 1
+    }
+
+    return len
+  },
   delete(key) {
     return this.deleteNode(this.root, key, 0)
   },
+  /*
+    recursive delete when:
+      1. no value && 2. no sub from current
+  */
   deleteNode(node, key, d) {
     // console.log(`deleteNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
     if(node == null)
@@ -238,7 +270,7 @@ TernaryNode.prototype.toString = function() {
 }
 
 export function TernaryST(a, options = {}) {
-  this.root = new TernaryNode(-1)
+  this.root = new TernaryNode(Number.MIN_VALUE)
   this.size = 0
   this.R = options.R || 256
   this.offset = options.offset || 0
@@ -269,7 +301,7 @@ TernaryST.prototype = {
     return node && node.value
   },
   getNode(node, key, d) {
-    // console.log(`getNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
+    console.log(`getNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
     if(node == null)
       return null
 
@@ -308,4 +340,158 @@ TernaryST.prototype = {
 
     return node
   },
+  getNonRecursive(key) {
+    let node = this.root,
+        d = 0
+
+    while(d < key.length - 1) {
+      const c = charCodeAtWithOffset(key, d, this.offset)
+      console.log(`getNonRecursive in TernaryST -- node: ${node && node.toString()}, c: ${c}, d: ${d}`)
+      if(!node)
+        return null
+
+      if(c < node.c)
+        node = node.left
+      else if(c > node.c)
+        node = node.right
+      else {
+        node = node.mid
+        d += 1
+      }
+    }
+    console.log(`getNonRecursive in TernaryST -- node: ${node && node.toString()}, c: ${charCodeAtWithOffset(key, d, this.offset)}, d: ${d}`)
+
+    return node && node.value
+  },
+  putNonRecursive(key, value) {
+    let node = this.root,
+        d = 0
+
+    while(d < key.length - 1) {
+      const c = charCodeAtWithOffset(key, d, this.offset)
+
+      if(!node)
+        node = new TernaryNode(c)
+
+      if(c < node.c) {
+        if(!node.left)
+          node.left = new TernaryNode(c)
+        node = node.left
+      } else if(c > node.c) {
+        if(!node.right)
+          node.right = new TernaryNode(c)
+        node = node.right
+      } else {
+        d += 1
+        if(!node.mid)
+          node.mid = new TernaryNode(charCodeAtWithOffset(key, d, this.offset))
+        node = node.mid
+      }
+    }
+
+    if(node.value == null)
+      this.size += 1
+    node.value = value
+
+    return node
+  },
+  delete(key) {
+    return this.deleteNode(this.root, key, 0)
+  },
+  deleteNode(node, key, d) {
+    if(!node)
+      return null
+
+    if(d < key.length - 1) {
+      const c = charCodeAtWithOffset(key, d, this.offset)
+      console.log(`deleteNode in TernaryST -- node: ${node && node.toString()}, c: ${c}, d: ${d}`)
+
+      if(c < node.c)
+        node.left = this.deleteNode(node.left, key, d)
+      else if(c > node.c)
+        node.right = this.deleteNode(node.right, key, d)
+      else
+        node.mid = this.deleteNode(node.mid, key, d + 1)
+    } else {
+      if(node.value != null)
+        this.size -= 1
+
+      node.value = null
+    }
+
+    if(node.value == null &&
+      !node.left &&
+      !node.right &&
+      !node.mid
+    ) return null
+
+    return node
+  },
+  deleteNonRecursive(key) {
+    let node = this.root,
+        d = 0,
+        stack = []
+
+    while(d < key.length - 1) {
+      if(!node)
+        return null
+
+      const c = charCodeAtWithOffset(key, d, this.offset)
+      if(c < node.c) {
+        stack.push({ node, direction: 'left' })
+        node = node.left
+      } else if(c > node.c) {
+        stack.push({ node, direction: 'right' })
+        node = node.right
+      } else {
+        stack.push({ node, direction: 'mid' })
+        node = node.mid
+        d += 1
+      }
+    }
+
+    if(!node)
+      return null
+    if(node.value != null)
+      this.size -= 1
+
+    node.value = null
+
+    while(node.value == null &&
+      !node.left &&
+      !node.right &&
+      !node.mid &&
+      stack.length > 0
+    ) {
+      const { node: parentNode, direction } = stack.pop()
+      parentNode[direction] = null
+
+      node = parentNode
+    }
+  },
+  keysWithPrefix(pre) {
+    const preNode = this.getNode(this.root, pre, 0)
+
+    if(!preNode)
+      return null
+
+    const q = new Queue()
+    q.enqueue(pre)
+
+    return this.collect(preNode.mid, pre, q)
+  },
+  collect(node, key, q) {
+    if(!node)
+      return q
+
+    const c = fromCharCode(node.c, this.offset)
+    if(node.value != null)
+      q.enqueue(key + c)
+
+    this.collect(node.left, key, q)
+    this.collect(node.mid, key + c, q)
+    this.collect(node.right, key, q)
+
+    return q
+  }
 }
