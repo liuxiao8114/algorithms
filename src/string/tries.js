@@ -7,7 +7,7 @@ TODO:
         So when reach the root.next in loop, it has setted the d with 1 already.
 */
 
-import { Queue } from './utils'
+import { Queue, charCodeAtWithOffset, fromCharCode } from './utils'
 
 function Node(value = null, R = 256) {
   this.value = value
@@ -16,16 +16,6 @@ function Node(value = null, R = 256) {
 
 Node.prototype.toString = function() {
   return this.value
-}
-
-function charCodeAtWithOffset(s, c, offset = 0) {
-  if(typeof s !== 'string' || s.length === 0)
-    return Number.MIN_VALUE
-  return s.charCodeAt(c) - offset
-}
-
-function fromCharCode(i, offset = 0) {
-  return String.fromCharCode(i + offset)
 }
 
 export function StringST(a, options = {}) {
@@ -301,7 +291,7 @@ TernaryST.prototype = {
     return node && node.value
   },
   getNode(node, key, d) {
-    console.log(`getNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
+    // console.log(`getNode -- node: ${node && node.toString()}, key: ${key}, d: ${d}`)
     if(node == null)
       return null
 
@@ -346,7 +336,7 @@ TernaryST.prototype = {
 
     while(d < key.length - 1) {
       const c = charCodeAtWithOffset(key, d, this.offset)
-      console.log(`getNonRecursive in TernaryST -- node: ${node && node.toString()}, c: ${c}, d: ${d}`)
+      // console.log(`getNonRecursive in TernaryST -- node: ${node && node.toString()}, c: ${c}, d: ${d}`)
       if(!node)
         return null
 
@@ -359,7 +349,7 @@ TernaryST.prototype = {
         d += 1
       }
     }
-    console.log(`getNonRecursive in TernaryST -- node: ${node && node.toString()}, c: ${charCodeAtWithOffset(key, d, this.offset)}, d: ${d}`)
+    // console.log(`getNonRecursive in TernaryST -- node: ${node && node.toString()}, c: ${charCodeAtWithOffset(key, d, this.offset)}, d: ${d}`)
 
     return node && node.value
   },
@@ -404,7 +394,7 @@ TernaryST.prototype = {
 
     if(d < key.length - 1) {
       const c = charCodeAtWithOffset(key, d, this.offset)
-      console.log(`deleteNode in TernaryST -- node: ${node && node.toString()}, c: ${c}, d: ${d}`)
+      // console.log(`deleteNode in TernaryST -- node: ${node && node.toString()}, c: ${c}, d: ${d}`)
 
       if(c < node.c)
         node.left = this.deleteNode(node.left, key, d)
