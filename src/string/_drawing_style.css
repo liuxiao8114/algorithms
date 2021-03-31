@@ -1,0 +1,28 @@
+.line {
+  display: grid;
+  grid-template: repeat(2, 1fr) / repeat(21, 1fr);
+  grid-gap: 0;
+  /* justify-items: start; */
+  /* justify-content: space-between; */
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+
+.cell {
+  border: 1px solid red;
+  width: 1.2em;
+  text-align: center;
+}
+
+.pointer {
+  grid-column-end: 22;
+  color: red;
+}
+
+.ctrlButton {
+  padding: 10px 20px;
+}
+
+.substring {
+  border: 2px solid blue;
+}
