@@ -45,34 +45,69 @@ export function KMP(pat, options = {}) {
   this.offset = offset
   this.dfa = new Array(R) // cannot use new Array(R).fill(new Array(M)), it will make all elements in the array will have the same subArray.
 
-  for(let i = 0; i < this.dfa.length; i++) {
-    this.dfa[i] = new Array(M).fill(0)
-  }
-
-  this.dfa[charCodeAtWithOffset(this.pat, 0, this.offset)][0] = 1
-
-  for(let x = 0, j = 1; j < M; j++) {
-    for(let c = 0; c < R; c++)
-      this.dfa[c][j] = this.dfa[c][x] // mismatch pattern
-
-    const charCodeAtJ = charCodeAtWithOffset(this.pat, j, this.offset)
-    this.dfa[charCodeAtJ][j] = j + 1  // match pattern, point to next
-    x = this.dfa[charCodeAtJ][x]      // update x
-  }
+  this.initDFA(M)
+  // for(let i = 0; i < this.dfa.length; i++) {
+  //   this.dfa[i] = new Array(M).fill(0)
+  // }
+  //
+  // this.dfa[charCodeAtWithOffset(this.pat, 0, this.offset)][0] = 1
+  //
+  // for(let x = 0, j = 1; j < M; j++) {
+  //   for(let c = 0; c < R; c++)
+  //     this.dfa[c][j] = this.dfa[c][x] // mismatch pattern
+  //
+  //   const charCodeAtJ = charCodeAtWithOffset(this.pat, j, this.offset)
+  //   this.dfa[charCodeAtJ][j] = j + 1  // match pattern, point to next
+  //   x = this.dfa[charCodeAtJ][x]      // update x
+  // }
 }
 
-KMP.prototype.search = function(txt) {
-  if(typeof txt !== 'string')
-    throw new Error('only search for string')
-  let M = this.pat.length,
-      N = txt.length,
-      i, j
+KMP.prototype = {
+  search(txt) {
+    if(typeof txt !== 'string')
+      throw new Error('only search for string')
+    let M = this.pat.length,
+        N = txt.length,
+        i, j
 
-  for(i = 0, j = 0; i < N && j < M; i++)
-    j = this.dfa[charCodeAtWithOffset(txt, i, this.offset)][j]
-  if(j === M) return i - M
+    for(i = 0, j = 0; i < N && j < M; i++)
+      j = this.dfa[charCodeAtWithOffset(txt, i, this.offset)][j]
+    if(j === M) return i - M
 
-  return false
+    return false
+  },
+  initDFA(M) {
+    for(let i = 0; i < this.dfa.length; i++)
+      this.dfa[i] = new Array(M).fill(0)
+
+    this.dfa[charCodeAtWithOffset(this.pat, 0, this.offset)][0] = 1
+
+    for(let x = 0, j = 1; j < M; j++) {
+      for(let c = 0; c < this.R; c++)
+        this.dfa[c][j] = this.dfa[c][x] // mismatch pattern
+
+      const charCodeAtJ = charCodeAtWithOffset(this.pat, j, this.offset)
+      this.dfa[charCodeAtJ][j] = j + 1  // match pattern, point to next
+      x = this.dfa[charCodeAtJ][x]      // update x
+    }
+  },
+  *visualizeDFA(M) {
+    yield 1
+    
+    for(let i = 0; i < this.dfa.length; i++)
+      this.dfa[i] = new Array(M).fill(0)
+
+    this.dfa[charCodeAtWithOffset(this.pat, 0, this.offset)][0] = 1
+
+    for(let x = 0, j = 1; j < M; j++) {
+      for(let c = 0; c < this.R; c++)
+        this.dfa[c][j] = this.dfa[c][x] // mismatch pattern
+
+      const charCodeAtJ = charCodeAtWithOffset(this.pat, j, this.offset)
+      this.dfa[charCodeAtJ][j] = j + 1  // match pattern, point to next
+      x = this.dfa[charCodeAtJ][x]      // update x
+    }
+  }
 }
 
 export function BoyerMoore(pat, R = 256) {
