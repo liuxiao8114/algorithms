@@ -3,10 +3,11 @@ import ReactDOM from 'react-dom'
 
 import '../index.css'
 import './_drawing_style.css'
+import { KMP } from './substring'
 
 const e = React.createElement
 const PATTERN = 'ababab'
-const TXT = 'this is ababab test'
+const TXT = 'aabbabbababbabababab'
 
 function Pointer({ name, type, position }) {
   return e(
@@ -54,15 +55,19 @@ function *bruceSearch(pat, txt) {
   let M = pat.length,
       N = txt.length
 
-  for(let i = 0; i <= N - M; i = yield i + 1) {
-    // setTxtPointerPosition(i)
-    // console.log(`iiiiii: ${i}`)
-    // let j
-    // for(j = 0; j < M; j = yield j + 1) {
-    //   if(txt.charAt(i + j) !== pat.charAt(j))
-    //     break
-    // }
-    // if(j === M) return i
+  for(let i = 0; i <= N - M; i++) {
+    yield { isI: true, value: i }
+    let j
+    for(j = 0; j < M; j++) {
+      yield { isI: false, value: j }
+      if(txt.charAt(i + j) !== pat.charAt(j)) {
+        yield 'checkFail'
+        break
+      }
+
+      yield 'checkSuccess'
+    }
+    if(j === M) return i
   }
 
   return false
@@ -111,7 +116,143 @@ function App({ pattern, txt }) {
   )
 }
 
-ReactDOM.render(
-  e(App, { txt: TXT, pattern: PATTERN }),
-  document.querySelector('#substring')
-)
+// ReactDOM.render(
+//   e(App, { txt: TXT, pattern: PATTERN }),
+//   document.querySelector('#substring')
+// )
+
+const dce = name => document.createElement(name)
+const dcdf = () => document.createDocumentFragment()
+const INIT_I = 0
+const INIT_J = 0
+
+const h2Element = dce('h2')
+h2Element.textContent = `Let's start!`
+
+const txtLineElement = dce('ul')
+txtLineElement.className = 'line'
+
+const patternLineElement = dce('ul')
+patternLineElement.className = 'line'
+
+const pointerI = dce('div')
+pointerI.className = 'pointer'
+pointerI.textContent = '⬇ i'
+updatePointerPosition(pointerI, INIT_I)
+
+const pointerJ = dce('div')
+pointerJ.className = 'pointer'
+pointerJ.textContent = '⬆ j'
+updatePointerPosition(pointerJ, INIT_J)
+
+let frag = dcdf()
+frag.appendChild(pointerI)
+const txtCells = []
+
+for(let i of TXT) {
+  const cellElement = dce('li')
+  cellElement.textContent = i
+  cellElement.className = 'cell'
+  txtCells.push(cellElement)
+  frag.appendChild(cellElement)
+}
+
+txtLineElement.appendChild(frag)
+
+frag = dcdf()
+const patternCells = []
+
+for(let i of PATTERN) {
+  const cellElement = dce('li')
+  cellElement.textContent = i
+  cellElement.className = 'cell'
+  patternCells.push(cellElement)
+  frag.appendChild(cellElement)
+}
+
+frag.appendChild(pointerJ)
+patternLineElement.appendChild(frag)
+
+const buttonElement = dce('button')
+buttonElement.className = 'ctrlButton'
+buttonElement.textContent = 'Show me the next!'
+
+const section = dce('section')
+section.className = 'substring'
+
+frag = dcdf()
+frag.appendChild(h2Element)
+frag.appendChild(txtLineElement)
+frag.appendChild(patternLineElement)
+frag.appendChild(buttonElement)
+
+section.appendChild(frag)
+document.querySelector('#substring').appendChild(section)
+
+function updatePosition(element, offset = 0) {
+  element.style = `transform: translateX(${offset}px)`
+}
+
+function updatePointerPosition(element, position) {
+  element.style = `grid-column-start: ${position + 1}`
+}
+
+function check(ei, ej, status) {
+  ei.classList.add(status)
+  ej.classList.add(status)
+}
+
+function clear(ei, ej) {
+  ei.classList.remove('onCheck')
+  ei.classList.remove('checkFail')
+  ej.classList.remove('onCheck')
+  ej.classList.remove('checkFail')
+}
+
+const bruceSearchSimulate = (() => {
+  const iterator = bruceSearch(PATTERN, TXT)
+  let nextValue = null,
+      lastStatus = null,
+      currentI = INIT_I,
+      currentJ = INIT_J,
+      isI = false
+
+  return () => {
+    nextValue = iterator.next().value
+
+    if(typeof nextValue === 'string') {
+      updatePointerPosition(pointerI, currentI + currentJ)
+      check(txtCells[currentI + currentJ], patternCells[currentJ], nextValue)
+    } else {
+      isI = nextValue.isI
+
+      if(isI) {
+        if(lastStatus !== 'checkSuccess')
+          clear(txtCells[currentI + currentJ], patternCells[currentJ])
+        currentI = nextValue.value
+        updatePointerPosition(pointerI, nextValue.value)
+      } else {
+        currentJ = nextValue.value
+        updatePointerPosition(pointerJ, nextValue.value)
+        updatePointerPosition(pointerI, currentI + currentJ)
+        check(txtCells[currentI + currentJ], patternCells[currentJ], 'onCheck')
+      }
+    }
+  }
+})()
+
+const kmpSimulate = () => {
+  const kmp = new KMP(PATTERN)
+  const dfa = kmp.dfa
+  const iterator = kmp.searchVisualize(TXT)
+
+  return () => {
+
+  }
+}
+
+function boyerMooreSimulate() {
+
+}
+
+buttonElement.addEventListener('click', bruceSearchSimulate)
