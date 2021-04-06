@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom'
 
 import '../index.css'
 import './_drawing_style.css'
+import { KMP } from './substring'
 
 const e = React.createElement
 const PATTERN = 'ababab'
-const TXT = 'this is ababab test'
+const TXT = 'aabbabbababbabababab'
+const ON_CHECK = 'onCheck'
+const CHECK_FAIL = 'checkFail'
+const CHECK_SUCCESS = 'checkSuccess'
 
 function Pointer({ name, type, position }) {
   return e(
@@ -37,7 +41,7 @@ function Line({ givenString, pointer, offset = 0 }) {
 
   return e(
     'ul',
-    { className: 'line', style: { transform: `translateX(${offset}px)` } },
+    { className: 'line', style: { transform: `translateX(${offset * 1.2}em)` } },
     cells
   )
 }
@@ -54,15 +58,19 @@ function *bruceSearch(pat, txt) {
   let M = pat.length,
       N = txt.length
 
-  for(let i = 0; i <= N - M; i = yield i + 1) {
-    // setTxtPointerPosition(i)
-    // console.log(`iiiiii: ${i}`)
-    // let j
-    // for(j = 0; j < M; j = yield j + 1) {
-    //   if(txt.charAt(i + j) !== pat.charAt(j))
-    //     break
-    // }
-    // if(j === M) return i
+  for(let i = 0; i <= N - M; i++) {
+    yield { isI: true, value: i }
+    let j
+    for(j = 0; j < M; j++) {
+      yield { isI: false, value: j }
+      if(txt.charAt(i + j) !== pat.charAt(j)) {
+        yield 'checkFail'
+        break
+      }
+
+      yield 'checkSuccess'
+    }
+    if(j === M) return i
   }
 
   return false
@@ -111,7 +119,246 @@ function App({ pattern, txt }) {
   )
 }
 
-ReactDOM.render(
-  e(App, { txt: TXT, pattern: PATTERN }),
-  document.querySelector('#substring')
-)
+// ReactDOM.render(
+//   e(App, { txt: TXT, pattern: PATTERN }),
+//   document.querySelector('#substring')
+// )
+
+const dce = name => document.createElement(name)
+const dcdf = () => document.createDocumentFragment()
+const INIT_I = 0
+const INIT_J = 0
+
+const h2Element = dce('h2')
+h2Element.textContent = `Let's start!`
+
+const txtLineElement = dce('ul')
+txtLineElement.className = 'line'
+
+const patternLineElement = dce('ul')
+patternLineElement.className = 'line'
+
+const pointerI = dce('div')
+pointerI.className = 'pointer'
+pointerI.textContent = '⬇ i'
+updatePointerPosition(pointerI, INIT_I)
+
+const pointerJ = dce('div')
+pointerJ.className = 'pointer'
+pointerJ.textContent = '⬆ j'
+updatePointerPosition(pointerJ, INIT_J)
+
+const inputElement = dce('input')
+const buttonElement = dce('button')
+buttonElement.className = 'ctrlButton'
+buttonElement.textContent = 'Show me the next!'
+
+function initCells(content, fragElement, memolized, pointer, pointerType) {
+  if(pointer && pointerType === 'down')
+    fragElement.appendChild(pointer)
+
+  for(let i of content) {
+    const cellElement = dce('li')
+    cellElement.textContent = i
+    cellElement.className = 'cell'
+    memolized.push(cellElement)
+    fragElement.appendChild(cellElement)
+  }
+
+  if(pointer && pointerType === 'up')
+    fragElement.appendChild(pointer)
+
+  return fragElement
+}
+
+function initSection() {
+  const section = dce('section')
+  section.className = 'substring'
+
+  const frag = dcdf()
+  frag.appendChild(h2Element)
+  frag.appendChild(txtLineElement)
+  frag.appendChild(patternLineElement)
+  frag.appendChild(inputElement)
+  frag.appendChild(buttonElement)
+
+  section.appendChild(frag)
+  document.querySelector('#substring').appendChild(section)
+
+  return section
+}
+
+function updatePosition(element, offset = 0) {
+  element.style = `transform: translateX(${offset * 1.2}em)`
+}
+
+function updatePointerPosition(element, position) {
+  element.style = `grid-column-start: ${position + 1}`
+}
+
+function updateInputContent(inputElement, content) {
+  inputElement.value = content
+}
+
+function check(ei, ej, status) {
+  ei.classList.add(status)
+  ej.classList.add(status)
+}
+
+function clear(ei, ej) {
+  ei.classList.remove(ON_CHECK)
+  ei.classList.remove(CHECK_FAIL)
+  ej.classList.remove(ON_CHECK)
+  ej.classList.remove(CHECK_FAIL)
+}
+
+const bruceSearchSimulate = (pattern, txt) => {
+  const iterator = bruceSearch(pattern, txt)
+  let nextValue = null,
+      lastStatus = null,
+      currentI = INIT_I,
+      currentJ = INIT_J,
+      isI = false
+
+  const txtCells = []
+  const patternCells = []
+
+  txtLineElement.appendChild(initCells(txt, dcdf(), txtCells, pointerI, 'down'))
+  patternLineElement.appendChild(initCells(pattern, dcdf(), patternCells, pointerJ, 'up'))
+  initSection()
+
+  return () => {
+    const next = iterator.next()
+    if(next.done)
+      return
+
+    nextValue = next.value
+
+    if(typeof nextValue === 'string') {
+      updatePointerPosition(pointerI, currentI + currentJ)
+      check(txtCells[currentI + currentJ], patternCells[currentJ], nextValue)
+    } else {
+      isI = nextValue.isI
+
+      if(isI) {
+        if(lastStatus !== CHECK_SUCCESS)
+          clear(txtCells[currentI + currentJ], patternCells[currentJ])
+        currentI = nextValue.value
+        updatePointerPosition(pointerI, nextValue.value)
+      } else {
+        currentJ = nextValue.value
+        updatePointerPosition(pointerJ, nextValue.value)
+        updatePointerPosition(pointerI, currentI + currentJ)
+        check(txtCells[currentI + currentJ], patternCells[currentJ], ON_CHECK)
+      }
+    }
+  }
+}
+
+function pmt(pattern) {
+  let i = 1, j = 0
+  const pmt = [ 0 ]
+
+  while(i < pattern.length && j < pattern.length) {
+    if(pattern.charAt(i) === pattern.charAt(j))
+      pmt[i] = ++j
+    else
+      j = pmt[j]
+    i += 1
+  }
+
+  return pmt
+}
+
+function* pmtGenerator(pattern) {
+  let i = 1, j = 0
+  const pmt = [ 0 ]
+
+  while(i < pattern.length && j < pattern.length) {
+    yield { type: ON_CHECK, i, j }
+
+    if(pattern.charAt(i) === pattern.charAt(j)) {
+      yield { type: CHECK_SUCCESS, pmt, i, j }
+      pmt[i] = ++j
+    } else {
+      yield { type: CHECK_FAIL, i, j }
+      j = pmt[j]
+    }
+
+    i += 1
+    yield { pmt, i, j }
+  }
+
+  return pmt
+}
+
+const pmtSimulate = pattern => {
+  const iterator = pmtGenerator(pattern)
+  const txtCells = []
+  const patternCells = []
+
+  let nextValue = null
+
+  updatePosition(patternLineElement, 1)
+  updatePointerPosition(pointerI, 1)
+  txtLineElement.appendChild(initCells(pattern, dcdf(), txtCells, pointerI, 'down'))
+  patternLineElement.appendChild(initCells(pattern, dcdf(), patternCells, pointerJ, 'up'))
+  initSection()
+
+  return () => {
+    const next = iterator.next()
+    if(next.done)
+      return
+
+    nextValue = next.value
+    console.log(`nextValue.type: ${nextValue.type}, nextValue.i: ${nextValue.i}, nextValue.j: ${nextValue.j}`)
+
+    switch (nextValue.type) {
+      case ON_CHECK: {
+        check(txtCells[nextValue.i], patternCells[nextValue.j], nextValue.type)
+        break
+      }
+      case CHECK_SUCCESS: {
+        check(txtCells[nextValue.i], patternCells[nextValue.j], nextValue.type)
+        break
+      }
+      case CHECK_FAIL: {
+        check(txtCells[nextValue.i], patternCells[nextValue.j], nextValue.type)
+        break
+      }
+      default: {
+        updatePointerPosition(pointerI, nextValue.i)
+        updatePointerPosition(pointerJ, nextValue.j)
+        updatePosition(patternLineElement, nextValue.i)
+      }
+    }
+  }
+}
+
+const pmtKmpSimulate = (pattern, txt) => {
+  const next = pmt(pattern)
+
+  for(let i = 0; i < txt.length; i++) {
+    let j = 0
+    for(; j < pattern.legnth;) {
+      if(txt.charAt(i) === pattern.charAt(j))
+        j++
+    }
+  }
+}
+
+const kmpSimulate = (pattern, txt) => {
+  const kmp = new KMP(pattern)
+  const dfa = kmp.dfa
+  const iterator = kmp.searchVisualize(txt)
+
+  return () => {
+
+  }
+}
+
+function boyerMooreSimulate() {
+
+}
+
+buttonElement.addEventListener('click', pmtSimulate(PATTERN))
