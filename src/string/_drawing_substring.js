@@ -363,19 +363,18 @@ function pmtKmp(pattern, txt) {
 function *pmtKmpGenerator(pattern, txt) {
   const next = pmt(pattern)
 
-  for(let i = 0; i < txt.length; i++) {
-    let j = 0
-    for(; j < pattern.length;) {
-      yield { type: ON_CHECK, i, j }
+  yield next
 
-      if(txt.charAt(i) === pattern.charAt(j)) {
-        yield { type: CHECK_SUCCESS, i, j }
-        j++
-      } else {
-        yield { type: CHECK_FAIL, i, j }
-        j = next[j]
-      }
+  for(let i = 0, j = 0; i < txt.length && j < pattern.length;) {
+    yield { type: ON_CHECK, i, j }
 
+    if(txt.charAt(i) === pattern.charAt(j)) {
+      yield { type: CHECK_SUCCESS, i, j }
+      j++
+      i++
+    } else {
+      yield { type: CHECK_FAIL, i, j }
+      j = next[j]
       yield { i, j }
     }
   }
@@ -389,6 +388,7 @@ function pmtKmpSimulate(pattern, txt) {
   let nextValue = null
 
   initSection(() => {
+    updateInputContent(inputElement, iterator.next().value)
     txtLineElement.appendChild(initCells(txt, dcdf(), txtCells, pointerI, 'down'))
     patternLineElement.appendChild(initCells(pattern, dcdf(), patternCells, pointerJ, 'up'))
   })
@@ -405,6 +405,8 @@ function pmtKmpSimulate(pattern, txt) {
     switch (nextValue.type) {
       case ON_CHECK: {
         check(txtCells[nextValue.i], patternCells[nextValue.j], nextValue.type)
+        updatePointerPosition(pointerI, nextValue.i)
+        updatePointerPosition(pointerJ, nextValue.j)
         break
       }
       case CHECK_SUCCESS: {
@@ -416,8 +418,6 @@ function pmtKmpSimulate(pattern, txt) {
         break
       }
       default: {
-        updatePointerPosition(pointerI, nextValue.i)
-        updatePointerPosition(pointerJ, nextValue.j)
         updatePosition(patternLineElement, nextValue.i)
       }
     }
