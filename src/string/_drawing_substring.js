@@ -171,9 +171,12 @@ function initCells(content, fragElement, memolized, pointer, pointerType) {
   return fragElement
 }
 
-function initSection() {
+function initSection(preProcess, callback) {
   const section = dce('section')
   section.className = 'substring'
+
+  if(typeof preProcess === 'function')
+    preProcess()
 
   const frag = dcdf()
   frag.appendChild(h2Element)
@@ -184,6 +187,9 @@ function initSection() {
 
   section.appendChild(frag)
   document.querySelector('#substring').appendChild(section)
+
+  if(typeof callback === 'function')
+    callback(section)
 
   return section
 }
@@ -257,9 +263,9 @@ const bruceSearchSimulate = (pattern, txt) => {
 
 function pmt(pattern) {
   let i = 1, j = 0
-  const pmt = [ 0 ]
+  const pmt = [ 0, 0 ]
 
-  while(i < pattern.length && j < pattern.length) {
+  while(i < pattern.length) {
     if(pattern.charAt(i) === pattern.charAt(j))
       pmt[i] = ++j
     else
@@ -271,22 +277,24 @@ function pmt(pattern) {
 }
 
 function* pmtGenerator(pattern) {
-  let i = 1, j = 0
-  const pmt = [ 0 ]
+  let i = 1, j = 0, isMove = false
+  const pmt = [ 0, 0 ]
 
-  while(i < pattern.length && j < pattern.length) {
+  while(i < pattern.length) {
     yield { type: ON_CHECK, i, j }
 
     if(pattern.charAt(i) === pattern.charAt(j)) {
-      yield { type: CHECK_SUCCESS, pmt, i, j }
+      yield { type: CHECK_SUCCESS, i, j }
       pmt[i] = ++j
+      isMove = false
     } else {
       yield { type: CHECK_FAIL, i, j }
       j = pmt[j]
+      isMove = true
     }
 
     i += 1
-    yield { pmt, i, j }
+    yield { pmt, i, j, isMove }
   }
 
   return pmt
@@ -299,14 +307,95 @@ const pmtSimulate = pattern => {
 
   let nextValue = null
 
-  updatePosition(patternLineElement, 1)
-  updatePointerPosition(pointerI, 1)
-  txtLineElement.appendChild(initCells(pattern, dcdf(), txtCells, pointerI, 'down'))
-  patternLineElement.appendChild(initCells(pattern, dcdf(), patternCells, pointerJ, 'up'))
-  initSection()
+  initSection(() => {
+    updatePosition(patternLineElement, 1)
+    updatePointerPosition(pointerI, 1)
+    txtLineElement.appendChild(initCells(pattern, dcdf(), txtCells, pointerI, 'down'))
+    patternLineElement.appendChild(initCells(pattern, dcdf(), patternCells, pointerJ, 'up'))
+  })
 
   return () => {
     const next = iterator.next()
+    if(next.done)
+      return
+
+    nextValue = next.value
+    // console.log(`nextValue.type: ${nextValue.type}, nextValue.i: ${nextValue.i}, nextValue.j: ${nextValue.j}`)
+
+    switch (nextValue.type) {
+      case ON_CHECK: {
+        check(txtCells[nextValue.i], patternCells[nextValue.j], nextValue.type)
+        break
+      }
+      case CHECK_SUCCESS: {
+        check(txtCells[nextValue.i], patternCells[nextValue.j], nextValue.type)
+        break
+      }
+      case CHECK_FAIL: {
+        check(txtCells[nextValue.i], patternCells[nextValue.j], nextValue.type)
+        break
+      }
+      default: {
+        updatePointerPosition(pointerI, nextValue.i)
+        updatePointerPosition(pointerJ, nextValue.j)
+        updateInputContent(inputElement, nextValue.pmt)
+        if(nextValue.isMove)
+          updatePosition(patternLineElement, nextValue.i)
+      }
+    }
+  }
+}
+
+function pmtKmp(pattern, txt) {
+  const next = pmt(pattern)
+
+  for(let i = 0; i < txt.length; i++) {
+    let j = 0
+    for(; j < pattern.length;) {
+      if(txt.charAt(i) === pattern.charAt(j))
+        j++
+      else
+        j = next[j]
+    }
+  }
+}
+
+function *pmtKmpGenerator(pattern, txt) {
+  const next = pmt(pattern)
+
+  for(let i = 0; i < txt.length; i++) {
+    let j = 0
+    for(; j < pattern.length;) {
+      yield { type: ON_CHECK, i, j }
+
+      if(txt.charAt(i) === pattern.charAt(j)) {
+        yield { type: CHECK_SUCCESS, i, j }
+        j++
+      } else {
+        yield { type: CHECK_FAIL, i, j }
+        j = next[j]
+      }
+
+      yield { i, j }
+    }
+  }
+}
+
+function pmtKmpSimulate(pattern, txt) {
+  const iterator = pmtKmpGenerator(pattern, txt)
+  const txtCells = []
+  const patternCells = []
+
+  let nextValue = null
+
+  initSection(() => {
+    txtLineElement.appendChild(initCells(txt, dcdf(), txtCells, pointerI, 'down'))
+    patternLineElement.appendChild(initCells(pattern, dcdf(), patternCells, pointerJ, 'up'))
+  })
+
+  return () => {
+    const next = iterator.next()
+    console.log(`nextdone: ${next.done}`)
     if(next.done)
       return
 
@@ -335,18 +424,6 @@ const pmtSimulate = pattern => {
   }
 }
 
-const pmtKmpSimulate = (pattern, txt) => {
-  const next = pmt(pattern)
-
-  for(let i = 0; i < txt.length; i++) {
-    let j = 0
-    for(; j < pattern.legnth;) {
-      if(txt.charAt(i) === pattern.charAt(j))
-        j++
-    }
-  }
-}
-
 const kmpSimulate = (pattern, txt) => {
   const kmp = new KMP(pattern)
   const dfa = kmp.dfa
@@ -361,4 +438,4 @@ function boyerMooreSimulate() {
 
 }
 
-buttonElement.addEventListener('click', pmtSimulate(PATTERN))
+buttonElement.addEventListener('click', pmtKmpSimulate(PATTERN, TXT))
