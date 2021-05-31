@@ -6,14 +6,14 @@ export default function BinarySearchST() {
 
 BinarySearchST.prototype = {
   constructor: BinarySearchST,
-  get(key) {
+  get(key) {    /* running time: logN */
     if(!this.keys.length) return null
-    let i = this.rankIterator(key)
+    let i = this.rank(key)
     if(this.keys[i] !== key) return null
     return this.values[i]
   },
-  put(key, value) {
-    let i = this.rankIterator(key)
+  put(key, value) {   /* running time: N + logN */
+    let i = this.rank(key)
     if(this.keys[i] === key) this.values[i] = value
     else {
       for(let j = this.N; j > i; j--) {
@@ -25,28 +25,34 @@ BinarySearchST.prototype = {
       this.values[i] = value
     }
   },
-  rankRecusive(key) {
-    function iter(key, keys, lo, hi) {
-      /*
-      if(lo === hi) {
-        if(this.keys[lo] < key) return lo + 1
-        if(this.keys[lo] > key) return lo
-        return lo
-      }
-      */
-      if(lo > hi) return lo
-
-      let mid = Math.floor((hi + lo) / 2)
-      if(keys[mid] < key) return iter(key, keys, mid + 1, hi)
-      if(keys[mid] > key) return iter(key, keys, lo, mid - 1)
-      return mid
-    }
-
-    return iter(key, this.keys, 0, this.keys.length - 1)
+  rank(key) {   /* running time: logN */
+    return this.rankIterator(key)
   },
+  rankRecusive(key, lo = 0, hi = this.keys.length - 1) {
+    if(lo > hi) return lo
+
+    let mid = Math.floor((hi + lo) / 2)
+    if(this.keys[mid] < key) return this.rankRecusive(key, mid + 1, hi)
+    if(this.keys[mid] > key) return this.rankRecusive(key, lo, mid - 1)
+
+    return mid
+  },
+  // rankRecusive(key) {
+  //   function iter(key, keys, lo, hi) {
+  //     if(lo > hi) return lo
+  //
+  //     let mid = Math.floor((hi + lo) / 2)
+  //     if(keys[mid] < key) return iter(key, keys, mid + 1, hi)
+  //     if(keys[mid] > key) return iter(key, keys, lo, mid - 1)
+  //     return mid
+  //   }
+  //
+  //   return iter(key, this.keys, 0, this.keys.length - 1)
+  // },
   rankIterator(key) {
     let lo = 0,
         hi = this.keys.length
+
     while(lo <= hi) {
       let mid = Math.floor((hi + lo) / 2)
       if(this.keys[mid] === key)
@@ -55,24 +61,31 @@ BinarySearchST.prototype = {
       if(this.keys[mid] < key) lo = mid + 1
       else hi = mid - 1
     }
+
     return lo
   },
-  select(i) {
+  select(i) {   /* running time: 1 */
     return this.keys[i]
   },
-  contains(key) {
-    return !!this.get(key)
+  size() {  /* running time: 1 */
+    return this.N
   },
-  isEmpty() {
+  contains(key) { /* running time: 1 */
+    return this.get(key) != null
+  },
+  isEmpty() { /* running time: 1 */
     return !this.keys.length
   },
-  min() {
+  min() { /* running time: 1 */
     return this.keys[0]
   },
-  max() {
+  max() { /* running time: 1 */
     return this.keys[this.N - 1]
   },
-  keys() {
+  keys() {  /* running time: 1 */
     return this.keys
-  }
+  },
+  values() {  /* running time: 1 */
+    return this.values
+  },
 }

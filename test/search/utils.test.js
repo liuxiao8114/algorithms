@@ -1,8 +1,5 @@
-import frequencyCounter from '../../src/search/utils'
+import { frequencyCounter } from '../../src/search/utils'
 import SequentialSearchST from '../../src/search/SequentialSearchST'
-
-const TEXT_PATH = `test/search/littleWords.txt`
-const MAX_WORDS = `was`
 
 describe('do some RegExps', () => {
   it('/g pattern', () => {
@@ -41,13 +38,32 @@ describe('do some RegExps', () => {
 })
 
 describe('utils test cases', () => {
-  it('gives counts for ST testing', done => {
+  it('gives littleWords counts', done => {
+    const TEXT_PATH = `test/search/_data/littleWords`
+    const MAX_WORDS = `was`
+
     const st = new SequentialSearchST()
     const maxCounter = () => {
       let max = null
       for(let item of st.items())
         if(!max || item.value > max.value) max = item
       expect(max).toEqual({ key: MAX_WORDS, value: 3 })
+      done()
+    }
+    frequencyCounter(TEXT_PATH, st, maxCounter)
+  })
+
+  it.only('gives tinyTale counts', done => {
+    const TEXT_PATH = `test/search/_data/tinyTale`
+    const MAX_WORDS = `of`
+
+    const st = new SequentialSearchST()
+    const maxCounter = () => {
+      let max = null
+      for(let item of st.items())
+        if(!max || item.value > max.value) max = item
+
+      expect(max).toEqual({ key: MAX_WORDS, value: 10 })
       done()
     }
     frequencyCounter(TEXT_PATH, st, maxCounter)

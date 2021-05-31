@@ -1,6 +1,13 @@
 const fs = require('fs')
 
-export default function frequencyCounter(path, st, callback) {
+export function Node(key, value, next = null) {
+  this.next = next
+  this.key = key
+  this.value = value
+  // this.item = { key, value }
+}
+
+export function frequencyCounter(path, st, callback = () => {}, cutoff) {
   const stream = fs.createReadStream(path)
   stream.setEncoding('utf8')
   let data = ''
@@ -8,22 +15,22 @@ export default function frequencyCounter(path, st, callback) {
   stream.on('readable', () => {
     let next = stream.read(1)
     while(next) {
-//      console.log(`in readable process: ${next}`) //eslint-disable-line
-      if(next !== ' ') {
-        data += next
+      if(/\r?\n|\s/.test(next)) {
+        if(data !== '') {
+          // console.log(`putData: [${data}]`)
+          if(!st.contains(data)) st.put(data, 1)
+          else st.put(data, st.get(data) + 1)
+          data = ''
+        }
       } else {
-        data.replace(/\n/g, '')
-        if(!st.contains(data)) st.put(data, 1)
-        else st.put(data, st.get(data) + 1)
-        data = ''
+        data += next
       }
       next = stream.read(1)
     }
-    if(data) {
-      data = data.replace(/\n/g, '')
+    if(data !== '') {
+      // console.log(`putLastData: [${data}]`)
       if(!st.contains(data)) st.put(data, 1)
       else st.put(data, st.get(data) + 1)
-      data = ''
     }
   })
 

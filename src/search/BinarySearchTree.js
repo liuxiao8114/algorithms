@@ -6,20 +6,32 @@ function Node(key, value) {
   this.N = 1
 }
 
-function BinarySearchTree() {
+export default function BinarySearchTree() {
   this.root = null
 }
 
 BinarySearchTree.prototype = {
   put(key, value) {
+    if(!this.root)
+      return this.root = new Node(key, value)
+
     function iter(node, key, value) {
-      if(!node) return new Node(key, value)
-      if(node.key > key) return node.right = iter(node.right, key, value)
-      if(node.key < key) return node.left = iter(node.left, key, value)
+      console.log(`put: (${key}, ${value}), current node: (${node && node.key}, ${node && node.value})`)
+      if(!node)
+        return new Node(key, value)
+      if(node.key > key) {
+        node.right = iter(node.right, key, value)
+        return node.right
+      }
+      if(node.key < key) {
+        node.left = iter(node.left, key, value)
+        return node.left
+      }
       node.value = value
       node.N = node.left.N + node.right.N + 1
       return node
     }
+
     return iter(this.root, key, value)
   },
   get(key) {
@@ -47,9 +59,9 @@ BinarySearchTree.prototype = {
     }
     return iter(this.root)
   },
-  size() {
-    if(!this.root) return 0
-    return this.root.N
+  size(x = this.root) {
+    if(x == null) return 0
+    return x.N
   },
   rank(key) {
     function iter(node) {

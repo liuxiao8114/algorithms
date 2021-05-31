@@ -1,48 +1,49 @@
-function Node(key, value) {
-  this.next = null
-  this.item = { key, value }
-}
+import { Node } from './utils'
 
 export default function SequentialSearchST() {
   this.first = null
+  this.N = 0 // for exercise 3.1.5
 }
 
 SequentialSearchST.prototype = {
   constructor: SequentialSearchST,
-  get(key) {
+  get(key) {  /* running time: N */
     function iter(key, pos) {
       if(!pos) return null
-      if(pos.item.key === key) return pos.item.value
+      if(pos.key === key) return pos.value
       return iter(key, pos.next)
     }
     return iter(key, this.first)
   },
-  put(key, value) {
-    function iter(key, pos) {
-      if(!pos)
-        throw new Error('pos cannot be null! Unpossible to reach here')
-      if(pos.item.key === key)
-        return pos.item.value = value
-      if(!pos.next) {
-        const last = new Node(key, value)
-        pos.next = last
+  put(key, value) { /* running time: N */
+    if(!this.first)
+      return this.first = new Node(key, value)
+
+    function iter(that, key, pos) {
+      if(!pos) {
+        that.N++
+        return that.first = new Node(key, value, that.first)
       }
-      return iter(key, pos.next)
+      if(pos.key === key)
+        return pos.value = value
+      return iter(that, key, pos.next)
     }
-    if(!this.first) return this.first = new Node(key, value)
-    return iter(key, this.first)
+
+    return iter(this, key, this.first)
   },
-  contains(key) {
-    return this.get(key) !== null
+  contains(key) { /* running time: N */
+    return this.get(key) != null
   },
   *items() {
     let next = this.first
     while(next) {
-      yield next.item
+      yield { key: next.key, value: next.value }
       next = next.next
     }
   },
-  isEmpty() {
+  isEmpty() { /* running time: 1 */
     return !this.first
-  }
+  },
+  toString() { return },
+  tostring() { return this.toString() },
 }
