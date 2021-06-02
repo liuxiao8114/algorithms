@@ -3,7 +3,7 @@ import SequentialSearchST from '../../src/search/SequentialSearchST'
 import BinarySearchST from '../../src/search/BinarySearchST'
 import { frequencyCounter, Node } from '../../src/search/utils'
 
-describe('BinarySearchST test cases', () => {
+describe("3.1 Symbol Tables exercises' solutions and tests.", () => {
   const example = `SEARCHEXAMPLE`
   const TINY = `${__dirname}/_data/tinyTale`
   const TINY_MAX_WORD = 'of'

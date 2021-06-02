@@ -45,9 +45,15 @@ describe('BinarySearchST test cases', () => {
     for(let i = 0; i < example.length; i++)
       st.put(example[i], i)
 
-      expect(st.get('S')).toBe(0)
-      expect(st.get('E')).toBe(12)
-      expect(st.get('A')).toBe(8)
+    expect(st.get('S')).toBe(0)
+    expect(st.get('E')).toBe(12)
+    expect(st.get('A')).toBe(8)
+
+    expect(st.select(0)).toBe('A')
+    expect(st.select(2)).toBe('E')
+    expect(st.select(4)).toBe('L')
+    expect(st.select(8)).toBe('S')
+    expect(st.select(9)).toBe('X')
   })
 
   it('tests tiny', done => {
