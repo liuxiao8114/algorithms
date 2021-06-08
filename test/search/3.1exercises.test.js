@@ -16,17 +16,17 @@ describe("3.1 Symbol Tables exercises' solutions and tests.", () => {
   // 4.33  4.00  3.67  3.33  3.00  2.67  2.33  2.00  1.67  1.00  0.00
   it('test 3.1.1', () => {
     const grades =
-    `A+ 4.33
-    A 4.00
-    A- 3.67
-    B+ 3.33
-    B 3.00
-    B- 2.67
-    C+ 2.33
-    C 2.00
-    C- 1.67
-    D 1.00
-    F 0.00`.split(/\r?\n/)
+     `A+ 4.33
+      A 4.00
+      A- 3.67
+      B+ 3.33
+      B 3.00
+      B- 2.67
+      C+ 2.33
+      C 2.00
+      C- 1.67
+      D 1.00
+      F 0.00`.split(/\r?\n/)
 
     const st = new BinarySearchST()
 
@@ -129,14 +129,7 @@ describe("3.1 Symbol Tables exercises' solutions and tests.", () => {
   // symbol-table API.
   it('test 3.1.3', () => {
     function OrderedSequentialSearchST() {
-      /*
-       *p
-        |
-        a -> b -> c -> d -> e
-      */
-      //
       this.first = null
-      this.pointer = null
       this.N = 0
     }
 
@@ -144,7 +137,7 @@ describe("3.1 Symbol Tables exercises' solutions and tests.", () => {
       constructor: OrderedSequentialSearchST,
       get(key) {
         if(this.isEmpty())
-          return
+          return null
         let next = this.first
 
         while(next) {
@@ -156,11 +149,40 @@ describe("3.1 Symbol Tables exercises' solutions and tests.", () => {
       put(key, value) {
         if(this.isEmpty())
           this.first = new Node(key, value)
+
+        let current = this.first,
+            next = current.next
+
+        while(next && key > next.key) {
+          current = next
+          next = current.next
+        }
+
+        if(!next) {
+          this.N++
+          return current.next = new Node(key, value)
+        }
+
+        if(key === next.key)
+          return next.value = value
+
+        this.N++
+        current.next = new Node(key, value)
+        current.next.next = next
       },
       isEmpty() {
-        return this.N == 0
+        return this.N === 0
       }
     }
+
+    const st = new OrderedSequentialSearchST()
+
+    for(let i = 0; i < example.length; i++)
+      st.put(example[i], i)
+
+    expect(st.get('S')).toBe(0)
+    expect(st.get('E')).toBe(12)
+    expect(st.get('A')).toBe(8)
   })
 
   // 3.1.4 Develop Time and Event ADTs that allow processing of data as in the example
@@ -257,8 +279,15 @@ describe("3.1 Symbol Tables exercises' solutions and tests.", () => {
   // Item values as argument and uses mergesort to sort the array.
   it('tests 3.1.12', () => {
     function BinarySearchSTCopy(items) {
-      this.N = 0
-      this.items = []
+      if(Array.isArray(items)) {
+        this.N = items.length
+        this.items = []
+        let aux = [ ...items ]
+
+      } else {
+        this.N = 0
+        this.items = []
+      }
     }
 
     BinarySearchSTCopy.prototype = {

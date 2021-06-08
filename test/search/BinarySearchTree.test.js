@@ -192,14 +192,21 @@ describe('BinarySearchTree test cases', () => {
     expect(st.select(9)).toBe('X')
     expect(st.select(10)).toBeNull()
 
+    // SEACRHMLPX
+    expect(st.keys()).toEqual('SEACRHMLPX'.split(''))
+    expect(st.keys('B', 'Y')).toEqual('SECRHMLPX'.split(''))
+    expect(st.keys('D')).toEqual('SERHMLPX'.split(''))
+    expect(st.keys(null, 'K')).toEqual('EACH'.split(''))
+
     const worstAscCase = `EHKNQTXZ`
     const worstAscBST = new BinarySearchTree()
 
     for(let i = 0; i < worstAscCase.length; i++)
       worstAscBST.put(worstAscCase[i], i)
 
-    expect(worstAscBST.floorIterator('A').key).toBe('E')
-    expect(worstAscBST.floor('A').key).toBe('E')
+    expect(worstAscBST.__floor('A')).toBeNull()
+    expect(worstAscBST.floorIterator('A')).toBeNull()
+    expect(worstAscBST.floor('A')).toBeNull()
   })
 
   it('test deleteMin() and deleteMax()', () => {
@@ -296,33 +303,60 @@ describe('BinarySearchTree test cases', () => {
     expect(st.root).toBeNull()
   })
 
-  it('test delete(key)', () => {
-    const st = new BinarySearchTree()
+  /*
+  E:          S(0)                        10
+            /      \                   /      \
+          E(12)     X(7)             8         1
+          / \                      /    \
+        A(8) R(3)                 2      5
+         \   /                     \    /
+         C4 H5                      1  4
+             \                          \
+              M9                         3
+             /  \                       / \
+            L11 P10                    1   1
+
+    // case1. delete leaf
+    // case2. delete node has one branch(left or right)
+    // case3. delete node has both branches: E
+    // case4. delete root
+  */
+  describe('delete(key) test cases', () => {
+    let st
     const example = `SEARCHEXAMPLE`
 
-    for(let i = 0; i < example.length; i++)
-      st.put(example[i], i)
+    beforeEach(() => {
+      st = new BinarySearchTree()
+      for(let i = 0; i < example.length; i++)
+        st.put(example[i], i)
+    })
 
-    /*
-    E:          S(0)                        10
-              /      \                   /      \
-            E(12)     X(7)             8         1
-            / \                      /    \
-          A(8) R(3)                 2      5
-           \   /                     \    /
-           C4 H5                      1  4
-               \                          \
-                M9                         3
-               /  \                       / \
-              L11 P10                    1   1
+    it('deletes leaf', () => {
+      const mNode = st.getNode('M')
+      expect(mNode.left.key).toBe('L')
+      st.delete('L')
+      expect(mNode.left).toBeNull()
+      expect(st.size()).toBe(9)
+    })
 
-    delete root
-    delete leaf
-    delete node has one branch(left or right)
-    delete node has both branches: E, M
+    it('deletes node has one branch(left or right)', () => {
+      const hNode = st.getNode('H')
+      st.delete('M')
+      // console.log(st.toString())
+      expect(st.size()).toBe(9)
+      expect(hNode.right.key).toBe('P')
+    })
 
-    */
+    it('deletes node has both branches: E', () => {
+      st.delete('E')
+      expect(st.size()).toBe(9)
 
-
+      const rootLeft = st.root.left
+      expect(rootLeft.key).toBe('H')
+      expect(rootLeft.left.key).toBe('A')
+      expect(rootLeft.right.key).toBe('R')
+      expect(rootLeft.right.right).toBeNull()
+      expect(rootLeft.right.left.key).toBe('M')
+    })
   })
 })
