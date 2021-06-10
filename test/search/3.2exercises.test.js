@@ -345,11 +345,12 @@ describe("3.2 Binary Search Trees exercises' solutions and tests.", () => {
   /*
     https://www.cs.rutgers.edu/~kaplan/503/binsearch.html
 
-    Let N be the count of internal nodes.
-    Then there are N + 1 external nodes.
+    It means we treat the tree as a full-binary tree(as external path is defined as path to the null link).
+    All N nodes are internal nodes with both children.
+    Then there are N + 1 null links.
 
     The internal path length in a tree is:
-      S = Li1 + Li2 + ... LiN.
+      S = Li1 + Li2  + ... LiN
     The external path length in a tree is:
       // U = Ll1 + Ll2 + ... LlN.
       //   = (Li1 + 2) + (Li2 + 2) + ... (LiN + 2)
@@ -394,24 +395,28 @@ h
 
   // 3.2.22 Prove that if a node in a BST has two children, its successor has no left child and
   // its predecessor has no right child.
-  it('test 3.2.22', () => {
-
-  })
 
   // 3.2.23 Is delete() commutative?
   // (Does deleting x, then y give the same result as deleting y, then x?)
-  /*
-    It depends on selected nodes.
-    if both x and y are leaves. -> Commutative
-    if x linked y or y linked x. -> Commutative
+  it('test 3.2.23', () => {
+    const st1 = new BinarySearchTree()
+    for(let i = 0; i < example.length; i++)
+      st1.put(example[i], i)
 
-      m
-      |
-      x
-     / \
-    y   z
-  */
+    const st2 = new BinarySearchTree()
+    for(let i = 0; i < example.length; i++)
+      st2.put(example[i], i)
+
+    st1.delete('A')
+    st1.delete('R')
+
+    st2.delete('R')
+    st2.delete('A')
+
+    expect(st1.toString()).toBe(st2.toString())
+  })
 
   // 3.2.24 Prove that no compare-based algorithm can build a BST using fewer than
   // lg(N !) ~ N lg N compares.
+  /* how we done this in merge sort analysis? */
 })

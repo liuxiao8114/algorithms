@@ -1,5 +1,5 @@
 import BinarySearchTree from '../../src/search/BinarySearchTree'
-import { frequencyCounter } from '../../src/search/utils'
+// import { frequencyCounter } from '../../src/search/utils'
 
 describe('BinarySearchTree test cases', () => {
   it('tests searchexample', () => {
